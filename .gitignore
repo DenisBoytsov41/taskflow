@@ -1,0 +1,109 @@
+# Общие системные файлы
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log
+*.swp
+
+# 🔥 Python backend
+backend/venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.coverage
+backend/htmlcov/
+backend/alembic/versions/  # Комментируй, если хочешь коммитить версии миграций
+backend/alembic.ini
+
+# 📦 Python зависимости
+backend/requirements.txt.lock  # Если используется poetry/pipenv
+backend/.env
+backend/.env.*
+
+# 🚀 FastAPI
+backend/debug.log
+backend/instance/
+
+# 🐳 Docker
+docker-compose.override.yml
+docker-compose.dev.yaml
+docker-compose.prod.yaml
+*.dockerfile
+**/docker-compose.override.yml
+**/docker-compose.yaml
+**/docker-compose.yml
+**/.dockerignore
+
+# 🗃️ PostgreSQL (данные контейнера)
+postgres-data/
+db.sqlite3
+pgdata/
+backend/postgres-data/
+
+# ⚛️ Frontend (React + TypeScript)
+frontend/node_modules/
+frontend/.eslintcache
+frontend/.turbo/
+frontend/dist/
+frontend/build/
+frontend/.parcel-cache/
+frontend/.next/
+frontend/out/
+frontend/.nuxt/
+frontend/.vuepress/
+frontend/public/static/
+frontend/public/*.log
+frontend/public/*.cache
+frontend/yarn.lock
+frontend/package-lock.json
+frontend/.env
+frontend/.env.*
+
+# 🚀 TypeScript
+*.tsbuildinfo
+
+# 🧪 Тестирование
+backend/tests/.pytest_cache/
+backend/tests/__pycache__/
+backend/tests/*.pyc
+frontend/coverage/
+frontend/jest/
+
+# 🔧 Logs & Temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+pip-log.txt
+pip-delete-this-directory.txt
+
+# 📸 Images / Large Files
+screenshots/
+backend/media/
+frontend/public/media/
+frontend/public/uploads/
+
+# 🌍 JetBrains (PyCharm, WebStorm)
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# 🚀 VS Code
+.vscode/
+*.code-workspace
+
+# ⚙️ MacOS/Linux
+.DS_Store
+._*
+.Spotlight-V100
+.Trash-*
+ehthumbs.db
+Thumbs.db
+
+# 🔍 Git
+*.orig

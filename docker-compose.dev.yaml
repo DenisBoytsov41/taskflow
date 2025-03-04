@@ -8,18 +8,44 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
-    environment:
-      - LOG_LEVEL=DEBUG
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    env_file:
+      - .env
+    command: >
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend_network
 
   frontend:
     build: ./frontend
+    container_name: frontend_dev
     ports:
       - "5173:5173"
+    networks:
+      - backend_network
 
   db:
     image: postgres:15
-    environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: project_db
+    container_name: postgres_dev
+    env_file:
+      - .env
+    volumes:
+      - taskflow_pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
+
+volumes:
+  taskflow_pgdata:
+
+networks:
+  backend_network:
