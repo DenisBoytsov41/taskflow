@@ -5,7 +5,7 @@ from typing import cast
 from loguru import logger
 
 class InterceptHandler(logging.Handler):
-    """Перехватчик стандартных логов Python и передача их в Loguru"""
+    """Перехватывает стандартные логи Python и передает их в Loguru"""
 
     def emit(self, record: logging.LogRecord) -> None:
         try:
@@ -22,8 +22,9 @@ class InterceptHandler(logging.Handler):
             level, record.getMessage()
         )
 
-def setup_logging(level: str = "INFO") -> None:
+def setup_logging(level: str = "DEBUG") -> None:
     """Настройка логирования для FastAPI, Uvicorn, SQLAlchemy и других библиотек"""
+    
     logging.root.handlers = []
     logging.root.setLevel(logging.INFO)
 
@@ -34,12 +35,26 @@ def setup_logging(level: str = "INFO") -> None:
         handlers=[
             {
                 "sink": sys.stdout,
-                "format": "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | "
-                          "<level>{level: <8}</level> | "
-                          "<cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> | "
-                          "<level>{message}</level>",
+                "format": (
+                    "<bold><green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green></bold> | "
+                    "<level>{level: <8}</level> | "
+                    "<bold><cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan></bold> | "
+                    "<level>{message}</level>"
+                ),
                 "colorize": True,
                 "level": level
-            }
+            },
+            {
+                "sink": "logs/app.log",
+                "format": (
+                    "{time:YYYY-MM-DD HH:mm:ss.SSS} | "
+                    "{level: <8} | "
+                    "{name}:{function}:{line} | "
+                    "{message}"
+                ),
+                "level": level,
+                "rotation": "10 MB",
+                "compression": "zip",
+            },
         ]
     )

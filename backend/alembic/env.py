@@ -1,36 +1,35 @@
+import os
 from logging.config import fileConfig
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 from alembic import context
+from app.database import Base
+from app.models import User, Project, Task  # Подключаем все модели
 
-# Импортируем модели и базу
-from app.database import Base, engine
-from app.models import User, Project, Task  # Импортируем все модели
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/project_db")
 
-# Настройки из Alembic config
+engine = create_engine(DATABASE_URL, poolclass=pool.NullPool)
+
 config = context.config
-
-# Настройка логирования
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-# Подключаем метаданные моделей
 target_metadata = Base.metadata
 
-def run_migrations_offline() -> None:
-    """Запуск миграций в оффлайн-режиме."""
-    url = config.get_main_option("sqlalchemy.url")
-    context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
-
+def run_migrations_offline():
+    """Запуск миграций в оффлайн-режиме (без подключения к БД)."""
+    context.configure(
+        url=DATABASE_URL,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+    )
     with context.begin_transaction():
         context.run_migrations()
 
-def run_migrations_online() -> None:
-    """Запуск миграций в онлайн-режиме."""
-    connectable = engine
-
-    with connectable.connect() as connection:
+def run_migrations_online():
+    """Запуск миграций в онлайн-режиме (с подключением к БД)."""
+    with engine.connect() as connection:
         context.configure(connection=connection, target_metadata=target_metadata)
-
         with context.begin_transaction():
             context.run_migrations()
 
