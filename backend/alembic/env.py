@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import create_engine, pool
 from alembic import context
 from app.database import Base
-from app.models import User, Project, Task  # Подключаем все модели
+from app.models import User, Task 
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/project_db")
 
@@ -29,7 +29,7 @@ def run_migrations_offline():
 def run_migrations_online():
     """Запуск миграций в онлайн-режиме (с подключением к БД)."""
     with engine.connect() as connection:
-        context.configure(connection=connection, target_metadata=target_metadata)
+        context.configure(connection=connection, target_metadata=target_metadata, version_table_schema="public")
         with context.begin_transaction():
             context.run_migrations()
 

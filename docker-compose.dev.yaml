@@ -29,6 +29,7 @@ services:
     container_name: frontend_dev
     ports:
       - "5173:5173"
+    command: ["npm", "run", "dev"]
     volumes:
       - ./logs/frontend.log:/app/frontend.log 
     networks:
