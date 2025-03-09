@@ -1,3 +1,5 @@
+import os
+import requests
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.auth import get_db, create_access_token, authenticate_user, get_password_hash
@@ -6,6 +8,9 @@ from app.responses import success_response, created_response, bad_request_respon
 from pydantic import BaseModel
 
 router = APIRouter()
+
+TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{TELEGRAM_BOT_TOKEN}/sendMessage"
 
 class UserCreate(BaseModel):
     username: str
@@ -84,3 +89,26 @@ def subscribe_telegram(username: str, telegram_id: str, db: Session = Depends(ge
     db.commit()
 
     return success_response({}, "Telegram успешно привязан")
+
+
+@router.post("/send-message")
+def send_telegram_message(username: str, message: str, db: Session = Depends(get_db)):
+    """Отправка сообщения пользователю в Telegram"""
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        return not_found_response("Пользователь не найден")
+
+    if not user.telegram_id:
+        return bad_request_response("У пользователя не привязан Telegram")
+
+    payload = {
+        "chat_id": user.telegram_id,
+        "text": message
+    }
+
+    response = requests.post(TELEGRAM_API_URL, json=payload)
+    
+    if response.status_code == 200:
+        return success_response({}, "Сообщение успешно отправлено")
+    else:
+        return bad_request_response("Ошибка при отправке сообщения")

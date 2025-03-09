@@ -12,7 +12,7 @@ services:
     env_file:
       - .env
     command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      sh -c "sleep 5 && alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
     depends_on:
       db:
         condition: service_healthy
@@ -70,6 +70,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - "8080:8080"
+    networks:
+      - backend_network
 
 volumes:
   taskflow_pgdata:

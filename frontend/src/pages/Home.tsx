@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const token = useAuthStore((state) => state.token);
+  const telegramId = useAuthStore((state) => state.telegramId);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
 
@@ -12,6 +13,7 @@ export default function Home() {
       {token ? (
         <>
           <p className="mt-4">You are logged in.</p>
+          {telegramId && <p>📱 Ваш Telegram ID: {telegramId}</p>}
           <button className="mt-2 bg-red-500 text-white p-2 rounded" onClick={() => { logout(); navigate("/login"); }}>
             Logout
           </button>

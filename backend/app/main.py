@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from loguru import logger
 from app.database import SessionLocal
-from app.routes import users, projects, tasks
+from app.routes import users, tasks
 from lib.utils.logger import setup_logging
 from fastapi import FastAPI, HTTPException
 from app.exception_handlers import (
@@ -28,7 +28,6 @@ app.add_middleware(
 )
 
 app.include_router(users.router, prefix="/users")
-app.include_router(projects.router, prefix="/projects")
 app.include_router(tasks.router, prefix="/tasks")
 app.add_exception_handler(HTTPException, bad_request_handler)
 app.add_exception_handler(IntegrityError, integrity_error_handler)
