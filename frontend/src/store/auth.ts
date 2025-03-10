@@ -4,18 +4,37 @@ interface AuthState {
   token: string | null;
   username: string | null;
   telegramId: string | null;
-  setToken: (token: string) => void;
+  setToken: (token: string | null) => void;
   setUsername: (username: string) => void;
   setTelegramId: (telegramId: string) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
-  token: null,
-  username: null,
+  token: localStorage.getItem("token") || null,
+  username: localStorage.getItem("username") || null,
   telegramId: null,
-  setToken: (token) => set({ token }),
-  setUsername: (username) => set({ username }),
+
+  setToken: (token) => {
+    if (token) {
+      localStorage.setItem("token", token);
+      set({ token });
+    } else {
+      localStorage.removeItem("token");
+      set({ token: null });
+    }
+  },
+
+  setUsername: (username) => {
+    localStorage.setItem("username", username);
+    set({ username });
+  },
+
   setTelegramId: (telegramId) => set({ telegramId }),
-  logout: () => set({ token: null, username: null, telegramId: null }),
+
+  logout: () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    set({ token: null, username: null, telegramId: null });
+  },
 }));

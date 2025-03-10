@@ -1,19 +1,19 @@
 :root {
-  --primary-color: #646cff;
-  --primary-hover: #535bf2;
-  --background-color: #f4f4f9;
+  --primary-color: #4a90e2;
+  --primary-hover: #357ab7;
+  --background-color: #f8f9fa;
   --text-color: #333;
   --border-color: #ddd;
-  --button-bg: #646cff;
-  --button-hover-bg: #535bf2;
+  --button-bg: #4a90e2;
+  --button-hover-bg: #357ab7;
   --input-bg: white;
   --input-border: #ccc;
-  --input-focus: #646cff;
+  --input-focus: #4a90e2;
 }
 
 body {
   font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  line-height: 1.6;
   font-weight: 400;
   margin: 0;
   padding: 0;
@@ -28,67 +28,118 @@ body {
 
 nav {
   background: var(--primary-color);
-  padding: 1rem;
+  padding: 1rem 2rem;
   width: 100%;
   display: flex;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
 }
 
 nav a {
   color: white;
   text-decoration: none;
   font-weight: bold;
+  padding: 8px 16px;
+  border-radius: 5px;
+  transition: background 0.3s;
 }
 
 nav a:hover {
-  text-decoration: underline;
+  background: var(--primary-hover);
 }
 
 .container {
-  max-width: 400px;
+  max-width: 500px;
   background: white;
   padding: 2rem;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   text-align: center;
-  margin-top: 20px;
+  margin-top: 80px; 
 }
 
 h2 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  font-weight: bold;
 }
 
 form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding: 10px;
 }
 
 input {
-  padding: 0.8rem;
+  padding: 12px;
   border: 1px solid var(--input-border);
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 1rem;
+  transition: all 0.3s ease;
 }
 
 input:focus {
   border-color: var(--input-focus);
   outline: none;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }
 
 button {
-  padding: 0.8rem;
+  padding: 12px;
   font-size: 1rem;
   font-weight: bold;
   color: white;
   background: var(--button-bg);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: background 0.3s, transform 0.2s;
 }
 
 button:hover {
   background: var(--button-hover-bg);
+  transform: scale(1.02);
+}
+
+.notification {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.3s ease;
+}
+
+.notification.success {
+  background: #28a745;
+  color: white;
+}
+
+.notification.error {
+  background: #dc3545;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .container {
+    max-width: 90%;
+  }
+
+  button {
+    width: 100%;
+  }
 }

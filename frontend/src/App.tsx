@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LinkTelegram from "./pages/LinkTelegram";
+import Dashboard from "./pages/Dashboard";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/link-telegram" element={<LinkTelegram />} />
+        <Route path="/dashboard" element={<Dashboard />} /> 
       </Routes>
     </Router>
   );
