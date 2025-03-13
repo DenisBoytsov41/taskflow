@@ -16,7 +16,7 @@ export default function Login() {
     setError(null);
     try {
       const response = await login(username, password);
-      console.log("Данные после логина:", response);
+      //console.log("Данные после логина:", response);
 
       if (response.data && response.data.access_token) {
         setToken(response.data.access_token);

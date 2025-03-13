@@ -18,6 +18,12 @@ services:
         condition: service_healthy
     networks:
       - backend_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      retries: 5
+      start_period: 10s
+      timeout: 5s
     logging:
       driver: "json-file"
       options:
@@ -36,6 +42,25 @@ services:
       - backend_network
     environment:
       - DEBUG=true 
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  telegram-bot:
+    build: ./telegram-bot
+    container_name: telegram_bot_dev
+    env_file:
+      - .env
+    volumes:
+      - ./logs/telegram-bot.log:/app/logs/telegram-bot.log  
+    networks:
+      - backend_network
+    depends_on:
+      backend:
+        condition: service_healthy 
+    command: ["python", "bot.py"]
     logging:
       driver: "json-file"
       options:

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from app.models import User, Project, Task
+from app.models import User, Task
 
 def get_user(db: Session, username: str):
     return db.query(User).filter(User.username == username).first()

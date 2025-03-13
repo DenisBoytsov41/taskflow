@@ -1,11 +1,14 @@
+import os
+import requests
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from app.auth import get_db
 from app.models import Task, User
 from app.responses import success_response, created_response, not_found_response
-from app.telegram import send_telegram_message
 
 router = APIRouter()
+
+TELEGRAM_BOT_URL = os.getenv("TELEGRAM_BOT_URL", "http://telegram-bot:8001/send-message")
 
 @router.get("/")
 def get_tasks(db: Session = Depends(get_db)):
@@ -29,7 +32,10 @@ def create_task(title: str, user_id: int, db: Session = Depends(get_db)):
     db.refresh(task)
 
     if user.telegram_id:
-        send_telegram_message(user.telegram_id, f"📝 Новая задача: {title}")
+        try:
+            requests.post(TELEGRAM_BOT_URL, json={"chat_id": user.telegram_id, "message": f"📝 Новая задача: {title}"})
+        except requests.RequestException as e:
+            print(f"Ошибка при отправке уведомления: {e}")
 
     return created_response(
         data={"id": task.id, "title": task.title},
@@ -47,6 +53,9 @@ def update_task_status(task_id: int, status: str, db: Session = Depends(get_db))
     db.commit()
 
     if task.user.telegram_id:
-        send_telegram_message(task.user.telegram_id, f"✅ Задача обновлена: {task.title} → {status}")
+        try:
+            requests.post(TELEGRAM_BOT_URL, json={"chat_id": task.user.telegram_id, "message": f"✅ Задача обновлена: {task.title} → {status}"})
+        except requests.RequestException as e:
+            print(f"Ошибка при отправке уведомления: {e}")
 
     return success_response({}, "Статус задачи обновлен")

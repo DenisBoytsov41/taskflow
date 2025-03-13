@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  db_test:
+    image: postgres:15
+    container_name: test_db
+    environment:
+      POSTGRES_USER: test_user
+      POSTGRES_PASSWORD: test_password
+      POSTGRES_DB: test_db
+    ports:
+      - "5433:5432"
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U test_user -d test_db"]
+      interval: 5s
+      retries: 5
+
+  backend_test:
+    build:
+      context: .
+      dockerfile: DockerfileTest
+    container_name: backend_test
+    environment:
+      DATABASE_URL: "postgresql://test_user:test_password@db_test:5432/test_db"
+    depends_on:
+      db_test:
+        condition: service_healthy
+    networks:
+      - app_network
+    command: >
+      sh -c "alembic upgrade head &&
+             pytest --disable-warnings --cov=app tests/"
+
+networks:
+  app_network:
+    driver: bridge

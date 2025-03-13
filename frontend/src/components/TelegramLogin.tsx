@@ -1,5 +1,5 @@
 import { useAuthStore } from "../store/auth";
-import { API_BOT_USERNAME, API_BASE_URL } from "../config";
+import { API_BOT_USERNAME } from "../config";
 
 export default function TelegramLogin() {
   const username = useAuthStore((state) => state.username);
@@ -15,9 +15,9 @@ export default function TelegramLogin() {
       return;
     }
 
-    const telegramAuthURL = `https://telegram.me/${API_BOT_USERNAME}?start=auth`;
+    const telegramAuthURL = `https://telegram.me/${API_BOT_USERNAME}?start=${encodeURIComponent(username)}`;
 
-    window.location.href = telegramAuthURL;
+    window.open(telegramAuthURL, "_blank", "noopener,noreferrer");
   };
 
   return (

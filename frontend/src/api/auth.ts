@@ -41,3 +41,24 @@ export const linkTelegram = async (username: string, telegramId: string) => {
 
   return await response.json();
 };
+
+export const getUserInfo = async () => {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    throw new Error("Токен отсутствует");
+  }
+
+  const response = await fetch(`${API_BACKEND_URL}/users/me`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token }),
+  });
+
+  if (!response.ok) {
+    throw new Error("Не удалось получить информацию о пользователе");
+  }
+
+  const result = await response.json();
+  return result; 
+};
+

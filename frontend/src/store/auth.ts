@@ -6,14 +6,14 @@ interface AuthState {
   telegramId: string | null;
   setToken: (token: string | null) => void;
   setUsername: (username: string) => void;
-  setTelegramId: (telegramId: string) => void;
+  setTelegramId: (telegramId: string | null) => void;
   logout: () => void;
 }
 
 export const useAuthStore = create<AuthState>((set) => ({
   token: localStorage.getItem("token") || null,
   username: localStorage.getItem("username") || null,
-  telegramId: null,
+  telegramId: localStorage.getItem("telegramId") || null,
 
   setToken: (token) => {
     if (token) {
@@ -30,11 +30,19 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ username });
   },
 
-  setTelegramId: (telegramId) => set({ telegramId }),
+  setTelegramId: (telegramId) => {
+    if (telegramId) {
+      localStorage.setItem("telegramId", telegramId);
+    } else {
+      localStorage.removeItem("telegramId");
+    }
+    set({ telegramId });
+  },
 
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("telegramId");
     set({ token: null, username: null, telegramId: null });
   },
 }));
