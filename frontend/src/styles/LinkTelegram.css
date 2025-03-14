@@ -1,0 +1,66 @@
+/* Основной контейнер */
+.link-telegram-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Заголовок */
+.link-telegram-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Ожидание загрузки */
+.loading {
+  font-size: 18px;
+  color: #888;
+  animation: pulse 1.5s infinite;
+}
+
+/* Ошибка */
+.error {
+  font-size: 18px;
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+/* Успех */
+.success {
+  font-size: 18px;
+  color: #2ecc71;
+  font-weight: bold;
+}
+
+/* Анимация ожидания */
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+@media (max-width: 600px) {
+  .link-telegram-title {
+    font-size: 22px;
+  }
+
+  .loading,
+  .error,
+  .success {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .link-telegram-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}

@@ -1,0 +1,105 @@
+/* Основной контейнер */
+.dashboard-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 20px;
+  width: 100%;
+}
+
+/* Контент внутри контейнера */
+.dashboard-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Заголовок */
+.dashboard-title {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Сообщение о загрузке */
+.dashboard-loading {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #777;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+/* Сообщение с Telegram ID */
+.dashboard-telegram {
+  margin-top: 15px;
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+/* Ошибка */
+.dashboard-error {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ff4d4d;
+}
+
+/* Кнопка привязки Telegram */
+.dashboard-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 5px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.dashboard-button:hover {
+  background-color: #0056b3;
+}
+
+/* Анимация для загрузки */
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Адаптация под мобильные устройства */
+@media (max-width: 600px) {
+  .dashboard-title {
+    font-size: 24px;
+  }
+
+  .dashboard-telegram {
+    font-size: 18px;
+  }
+
+  .dashboard-button {
+    font-size: 14px;
+    padding: 8px 16px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .dashboard-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+}

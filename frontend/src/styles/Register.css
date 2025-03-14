@@ -1,0 +1,161 @@
+/* Основной контейнер */
+.register-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+/* Карточка формы */
+.register-card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 320px; 
+  box-sizing: border-box; 
+}
+
+/* Заголовок */
+.register-title {
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Сообщения */
+.success-message {
+  font-size: 16px;
+  color: #27ae60;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.error-container {
+  max-width: 320px; 
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+/* Ошибка */
+.error-message {
+  font-size: 16px;
+  color: #e74c3c;
+  font-weight: bold;
+  padding: 8px;
+  max-width: 100%;
+  text-align: center;
+  background: #fee;
+  border-radius: 6px;
+  box-shadow: 0px 4px 8px rgba(255, 0, 0, 0.2);
+  transition: opacity 0.3s ease-in-out;
+  box-sizing: border-box; 
+}
+
+/* Форма */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 100%; 
+}
+
+/* Поля ввода */
+.input-field {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  width: 100%;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.input-field:focus {
+  border-color: #2ecc71;
+  outline: none;
+}
+
+/* Кнопка */
+.register-button {
+  display: block;
+  background-color: #2ecc71;
+  color: white;
+  padding: 12px;
+  font-size: 18px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s, transform 0.1s ease;
+  font-weight: bold;
+  width: 100%; 
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.register-button:hover {
+  background-color: #27ae60;
+  transform: scale(1.03);
+}
+
+.register-button:disabled {
+  background-color: #95a5a6;
+  cursor: not-allowed;
+}
+
+.password-field {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.password-field input {
+  width: 100%;
+  padding-right: 40px;
+}
+
+.password-toggle {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  color: #555;
+  font-size: 18px;
+}
+
+.password-toggle:hover {
+  color: #222;
+}
+
+
+/* Медиа-запросы для мобильных устройств */
+@media (max-width: 480px) {
+  .register-card {
+      padding: 20px;
+      max-width: 90%;
+  }
+
+  .register-title {
+      font-size: 22px;
+  }
+
+  .input-field {
+      font-size: 14px;
+      padding: 10px;
+  }
+
+  .register-button {
+      font-size: 16px;
+      padding: 10px;
+  }
+}

@@ -1,5 +1,6 @@
 import { useAuthStore } from "../store/auth";
 import { useNavigate } from "react-router-dom";
+import "../styles/Home.css";
 
 export default function Home() {
   const token = useAuthStore((state) => state.token);
@@ -8,25 +9,39 @@ export default function Home() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-3xl">Welcome to Project Manager</h1>
+    <div className="home-container">
+      <h1 className="home-title">🏠 Добро пожаловать в Project Manager</h1>
+
       {token ? (
         <>
-          <p className="mt-4">You are logged in.</p>
-          {telegramId && <p>📱 Ваш Telegram ID: {telegramId}</p>}
-          <button className="mt-2 bg-red-500 text-white p-2 rounded" onClick={() => { logout(); navigate("/login"); }}>
-            Logout
+          <p className="home-text">✅ Вы вошли в систему.</p>
+          {telegramId && <p className="home-telegram">📱 Ваш Telegram ID: {telegramId}</p>}
+
+          <button 
+            className="home-button logout" 
+            onClick={() => { logout(); navigate("/login"); }}
+          >
+            🚪 Выйти
           </button>
         </>
       ) : (
         <>
-          <p className="mt-4">Please login or register.</p>
-          <button className="mt-2 bg-blue-500 text-white p-2 rounded" onClick={() => navigate("/login")}>
-            Login
-          </button>
-          <button className="mt-2 bg-green-500 text-white p-2 rounded" onClick={() => navigate("/register")}>
-            Register
-          </button>
+          <p className="home-text">🔑 Войдите или зарегистрируйтесь, чтобы продолжить.</p>
+          
+          <div className="home-buttons">
+            <button 
+              className="home-button login" 
+              onClick={() => navigate("/login")}
+            >
+              🔑 Войти
+            </button>
+            <button 
+              className="home-button register" 
+              onClick={() => navigate("/register")}
+            >
+              📝 Регистрация
+            </button>
+          </div>
         </>
       )}
     </div>

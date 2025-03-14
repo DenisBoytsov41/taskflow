@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/auth";
 import { linkTelegram, getUserInfo } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import "../styles/LinkTelegram.css";
 
 export default function LinkTelegram() {
   const username = useAuthStore((state) => state.username);
@@ -22,7 +23,7 @@ export default function LinkTelegram() {
         console.log("🔄 Проверяем, привязан ли Telegram...");
         const userData = await getUserInfo();
 
-        if (userData && userData.data?.telegram_id) {
+        if (userData?.data?.telegram_id) {
           console.log("✅ Telegram уже привязан:", userData.data.telegram_id);
           setTelegramId(userData.data.telegram_id);
           localStorage.setItem("telegramId", userData.data.telegram_id);
@@ -50,19 +51,19 @@ export default function LinkTelegram() {
         console.log("📡 Отправляем запрос на привязку Telegram...");
         await linkTelegram(username, telegramId);
         console.log("✅ Telegram ID привязан успешно:", telegramId);
-        
+
         setTelegramId(telegramId);
         localStorage.setItem("telegramId", telegramId);
-        
+
         alert("✅ Telegram успешно привязан!");
-        
+
         console.log("🔄 Запрашиваем обновленные данные пользователя...");
         const updatedUserData = await getUserInfo();
 
-        if (updatedUserData && updatedUserData.telegram_id) {
-          console.log("✅ Обновленные данные пользователя:", updatedUserData.telegram_id);
-          setTelegramId(updatedUserData.telegram_id);
-          localStorage.setItem("telegramId", updatedUserData.telegram_id);
+        if (updatedUserData?.data?.telegram_id) {
+          console.log("✅ Обновленные данные пользователя:", updatedUserData.data.telegram_id);
+          setTelegramId(updatedUserData.data.telegram_id);
+          localStorage.setItem("telegramId", updatedUserData.data.telegram_id);
         } else {
           console.warn("⚠️ Telegram ID отсутствует после обновления данных.");
         }
@@ -80,14 +81,14 @@ export default function LinkTelegram() {
   }, [username, setTelegramId, navigate]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h2 className="text-2xl font-bold">Привязка Telegram</h2>
+    <div className="link-telegram-container">
+      <h2 className="link-telegram-title">🔗 Привязка Telegram</h2>
       {loading ? (
-        <p className="text-gray-500 animate-pulse">🔄 Ожидание подтверждения...</p>
+        <p className="loading">🔄 Ожидание подтверждения...</p>
       ) : error ? (
-        <p className="text-red-500">{error}</p>
+        <p className="error">{error}</p>
       ) : (
-        <p className="text-green-500">✅ Telegram успешно привязан!</p>
+        <p className="success">✅ Telegram успешно привязан!</p>
       )}
     </div>
   );

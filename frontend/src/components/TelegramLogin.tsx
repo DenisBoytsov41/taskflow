@@ -1,5 +1,6 @@
 import { useAuthStore } from "../store/auth";
 import { API_BOT_USERNAME } from "../config";
+import "../styles/TelegramLogin.css";
 
 export default function TelegramLogin() {
   const username = useAuthStore((state) => state.username);
@@ -21,17 +22,14 @@ export default function TelegramLogin() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <h2 className="text-2xl font-bold mb-4">Привязка Telegram</h2>
+    <div className="telegram-login-container">
+      <h2 className="telegram-title">🔗 Привязка Telegram</h2>
       {username ? (
-        <button
-          onClick={handleTelegramAuth}
-          className="bg-blue-500 text-white p-3 rounded-lg text-lg shadow-lg hover:bg-blue-600 transition"
-        >
+        <button onClick={handleTelegramAuth} className="telegram-button">
           🔗 Привязать Telegram
         </button>
       ) : (
-        <p className="text-red-500">⚠️ Войдите, чтобы привязать Telegram.</p>
+        <p className="telegram-warning">⚠️ Войдите, чтобы привязать Telegram.</p>
       )}
     </div>
   );

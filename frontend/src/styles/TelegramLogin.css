@@ -1,0 +1,79 @@
+/* Основной контейнер */
+.telegram-login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 100vh;
+  padding: 20px;
+  background-color: #f8f9fa;
+}
+
+/* Карточка */
+.telegram-login-card {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Заголовок */
+.telegram-title {
+  font-size: 26px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Кнопка */
+.telegram-button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 24px;
+  font-size: 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.1s ease;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.telegram-button:hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+/* Сообщение об ошибке */
+.telegram-warning {
+  color: #ff4d4d;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+}
+
+@media (max-width: 480px) {
+  .telegram-login-card {
+      padding: 20px;
+  }
+
+  .telegram-title {
+      font-size: 22px;
+  }
+
+  .telegram-button {
+      font-size: 16px;
+      padding: 10px 20px;
+  }
+}
