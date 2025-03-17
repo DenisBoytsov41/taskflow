@@ -3,7 +3,7 @@ from logging.config import fileConfig
 from sqlalchemy import create_engine, pool, text
 from alembic import context
 from app.database import Base
-from app.models import User, Task
+from app.models import User, Task, RefreshToken
 
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://myuser:password@localhost:5432/ToDoApp")
 print("DATABASE_URL:", DATABASE_URL)

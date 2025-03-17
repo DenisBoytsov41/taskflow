@@ -1,28 +1,54 @@
 import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/auth";
-import { linkTelegram, getUserInfo } from "../api/auth";
+import { linkTelegram, getUserInfo, refreshAccessToken } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import "../styles/LinkTelegram.css";
 
 export default function LinkTelegram() {
   const username = useAuthStore((state) => state.username);
   const setTelegramId = useAuthStore((state) => state.setTelegramId);
+  const setToken = useAuthStore((state) => state.setToken);
+  const token = useAuthStore((state) => state.token);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!username) {
-      console.warn("⚠️ Пользователь не авторизован, перенаправляем на /login.");
-      navigate("/login");
-      return;
-    }
+    const handleTelegramLink = async () => {
+      if (!username) {
+        console.warn("⚠️ Пользователь не авторизован, перенаправляем на /login.");
+        navigate("/login");
+        return;
+      }
 
-    const checkExistingTelegram = async () => {
       try {
-        console.log("🔄 Проверяем, привязан ли Telegram...");
-        const userData = await getUserInfo();
+        console.log("🔄 Проверяем актуальность Access Token...");
+        let accessToken = token || localStorage.getItem("token");
 
+        if (!accessToken) {
+          console.log("🔄 Access Token отсутствует, пробуем обновить...");
+          accessToken = await refreshAccessToken();
+
+          if (accessToken) {
+            setToken(accessToken);
+            localStorage.setItem("token", accessToken);
+          } else {
+            console.warn("⚠️ Ошибка обновления токена. Перенаправляем на страницу входа.");
+            navigate("/login");
+            return;
+          }
+        }
+
+        console.log("✅ Access Token обновлен и используется.");
+      } catch (error) {
+        console.error("❌ Ошибка обновления токена:", error);
+        navigate("/login");
+        return;
+      }
+
+      try {
+        console.log("🔍 Проверяем, привязан ли Telegram...");
+        const userData = await getUserInfo();
         if (userData?.data?.telegram_id) {
           console.log("✅ Telegram уже привязан:", userData.data.telegram_id);
           setTelegramId(userData.data.telegram_id);
@@ -77,8 +103,8 @@ export default function LinkTelegram() {
       }
     };
 
-    checkExistingTelegram();
-  }, [username, setTelegramId, navigate]);
+    handleTelegramLink();
+  }, [username, token, setTelegramId, setToken, navigate]);
 
   return (
     <div className="link-telegram-container">

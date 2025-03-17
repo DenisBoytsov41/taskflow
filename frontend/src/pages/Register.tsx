@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
+import { useAuthStore } from "../store/auth";
 import { register } from "../api/auth";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "../styles/Register.css";
 
 export default function Register() {
@@ -11,6 +12,9 @@ export default function Register() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const setToken = useAuthStore((state) => state.setToken);
+  const setUsernameStore = useAuthStore((state) => state.setUsername);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,14 +45,25 @@ export default function Register() {
     setError(null);
     setSuccessMessage(null);
 
-    if (!validateInput()) return; 
+    if (!validateInput()) return;
 
     setLoading(true);
     try {
-      await register(username, password);
-      setSuccessMessage("✅ Регистрация успешна! Переход на страницу входа...");
-      
-      setTimeout(() => navigate("/login"), 2000);
+      console.log("📨 Отправка запроса на регистрацию...");
+      const accessToken = await register(username, password);
+
+      if (!accessToken) {
+        throw new Error("❌ Ошибка: Не получен Access Token.");
+      }
+
+      console.log("✅ Регистрация успешна. Получен токен:", accessToken);
+
+      setToken(accessToken);
+      setUsernameStore(username);
+      localStorage.setItem("token", accessToken);
+
+      setSuccessMessage("✅ Регистрация успешна! Перенаправление...");
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
       console.error("❌ Ошибка регистрации:", error);
       setError("❌ Пользователь с таким именем уже существует.");
@@ -65,34 +80,33 @@ export default function Register() {
       {successMessage && <p className="success-message">{successMessage}</p>}
 
       <form onSubmit={handleSubmit} className="register-form">
-        <input 
-          type="text" 
-          placeholder="Имя пользователя" 
-          value={username} 
+        <input
+          type="text"
+          placeholder="Имя пользователя"
+          value={username}
           onChange={(e) => setUsername(e.target.value)}
           className="input-field"
           autoComplete="username"
         />
 
-        <div className="password-field">
-          <input 
+        <div className="password-container">
+          <input
             type={showPassword ? "text" : "password"}
             placeholder="Пароль"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="input-field"
+            className="input-field password-input"
             autoComplete="new-password"
           />
-          <span className="password-toggle" onClick={() => setShowPassword(!showPassword)}>
+          <span
+            className="password-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+          >
             {showPassword ? <FaEyeSlash /> : <FaEye />}
           </span>
         </div>
 
-        <button 
-          type="submit" 
-          className="register-button"
-          disabled={loading}
-        >
+        <button type="submit" className="register-button" disabled={loading}>
           {loading ? "⏳ Регистрация..." : "Зарегистрироваться"}
         </button>
       </form>

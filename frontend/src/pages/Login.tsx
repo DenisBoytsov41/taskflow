@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useAuthStore } from "../store/auth";
 import { login } from "../api/auth";
 import { useNavigate } from "react-router-dom";
-import { FaEye, FaEyeSlash } from "react-icons/fa"; 
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 import "../styles/Login.css";
 
 export default function Login() {
@@ -11,6 +11,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
   const setToken = useAuthStore((state) => state.setToken);
   const setUsernameStore = useAuthStore((state) => state.setUsername);
   const navigate = useNavigate();
@@ -37,19 +38,25 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
     if (!validateInput()) return;
 
     setLoading(true);
     try {
-      const response = await login(username, password);
-      if (response.data?.access_token) {
-        setToken(response.data.access_token);
-        setUsernameStore(username);
-        localStorage.setItem("token", response.data.access_token);
-        navigate("/dashboard");
-      } else {
-        setError("❌ Ошибка: Токен не получен.");
+      console.log("📨 Отправка запроса на вход...");
+      const accessToken = await login(username, password);
+
+      if (!accessToken) {
+        throw new Error("❌ Ошибка: Не получен Access Token.");
       }
+
+      console.log("✅ Вход выполнен успешно. Токен получен:", accessToken);
+
+      setToken(accessToken);
+      setUsernameStore(username);
+      localStorage.setItem("token", accessToken);
+
+      navigate("/dashboard");
     } catch (error) {
       console.error("❌ Ошибка входа:", error);
       setError("❌ Неверное имя пользователя или пароль.");

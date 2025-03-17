@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { refreshAccessToken, logout } from "../api/auth";
 
 interface AuthState {
   token: string | null;
@@ -7,6 +8,7 @@ interface AuthState {
   setToken: (token: string | null) => void;
   setUsername: (username: string) => void;
   setTelegramId: (telegramId: string | null) => void;
+  refreshToken: () => Promise<void>;
   logout: () => void;
 }
 
@@ -39,10 +41,35 @@ export const useAuthStore = create<AuthState>((set) => ({
     set({ telegramId });
   },
 
-  logout: () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("username");
-    localStorage.removeItem("telegramId");
-    set({ token: null, username: null, telegramId: null });
+  refreshToken: async () => {
+    try {
+      const newAccessToken = await refreshAccessToken();
+      if (newAccessToken) {
+        useAuthStore.getState().setToken(newAccessToken);
+      } else {
+        useAuthStore.getState().logout();
+      }
+    } catch (error) {
+      useAuthStore.getState().logout();
+    }
+  },
+
+  logout: async () => {
+    try {
+      const username = localStorage.getItem("username");
+      if (!username) {
+        throw new Error("Ошибка выхода: Имя пользователя отсутствует");
+      }
+
+      await logout(username);
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("username");
+      localStorage.removeItem("telegramId");
+
+      set({ token: null, username: null, telegramId: null });
+    } catch (error) {
+      console.error("Ошибка выхода:", error);
+    }
   },
 }));
