@@ -23,7 +23,6 @@ export default function TelegramLogin() {
 
   return (
     <div className="telegram-login-container">
-      <h2 className="telegram-title">🔗 Привязка Telegram</h2>
       {username ? (
         <button onClick={handleTelegramAuth} className="telegram-button">
           🔗 Привязать Telegram

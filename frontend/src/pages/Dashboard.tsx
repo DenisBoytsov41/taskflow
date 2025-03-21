@@ -1,13 +1,15 @@
 import { useAuthStore } from "../store/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getUserInfo, refreshAccessToken } from "../api/auth";
+import { getUserInfo, refreshAccessToken, restoreSession } from "../api/auth";
 import TelegramLogin from "../components/TelegramLogin";
 import "../styles/Dashboard.css";
 
 export default function Dashboard() {
   const token = useAuthStore((state) => state.token);
   const setToken = useAuthStore((state) => state.setToken);
+  const username = useAuthStore((state) => state.username);
+  const setUsername = useAuthStore((state) => state.setUsername);
   const telegramId = useAuthStore((state) => state.telegramId);
   const setTelegramId = useAuthStore((state) => state.setTelegramId);
   const navigate = useNavigate();
@@ -17,23 +19,44 @@ export default function Dashboard() {
     const fetchUserData = async () => {
       try {
         let accessToken = token || localStorage.getItem("token");
+        let storedUsername = username || localStorage.getItem("username");
 
         if (!accessToken) {
-          console.log("🔄 Токен отсутствует. Обновляем через refresh_token...");
-          accessToken = await refreshAccessToken();
+          console.log("🔄 Токен отсутствует. Пробуем восстановить сессию...");
 
-          if (accessToken) {
-            setToken(accessToken);
-            localStorage.setItem("token", accessToken);
-          } else {
-            console.warn("⚠️ Ошибка обновления токена. Перенаправляем на страницу входа.");
+          try {
+            if (!storedUsername) {
+              throw new Error("Имя пользователя отсутствует в localStorage.");
+            }
+
+            accessToken = await restoreSession();
+            if (accessToken) {
+              console.log("✅ Сессия успешно восстановлена!");
+            } else {
+              console.warn("⚠️ Не удалось восстановить сессию. Пробуем обновить токен...");
+              accessToken = await refreshAccessToken();
+            }
+
+            if (accessToken) {
+              setToken(accessToken);
+              localStorage.setItem("token", accessToken);
+            } else {
+              throw new Error("Не удалось обновить или восстановить токен");
+            }
+          } catch (error) {
+            console.warn("⚠️ Ошибка восстановления или обновления токена. Перенаправляем на страницу входа.");
             navigate("/login");
             return;
           }
         }
 
-        console.log("✅ Используем токен для запроса данных пользователя.");
         const userData = await getUserInfo();
+        
+        if (userData?.data?.username) {
+          setUsername(userData.data.username);
+          localStorage.setItem("username", userData.data.username);
+        }
+
         if (userData?.data?.telegram_id) {
           setTelegramId(userData.data.telegram_id);
           localStorage.setItem("telegramId", userData.data.telegram_id);
@@ -47,7 +70,7 @@ export default function Dashboard() {
     };
 
     fetchUserData();
-  }, [token, setToken, setTelegramId, navigate]);
+  }, [token, username, setToken, setUsername, setTelegramId, navigate]);
 
   return (
     <div className="dashboard-container">
@@ -55,12 +78,17 @@ export default function Dashboard() {
         <h1 className="dashboard-title">📌 Добро пожаловать в Dashboard</h1>
         {loading ? (
           <p className="dashboard-loading">🔄 Загрузка...</p>
-        ) : telegramId ? (
-          <p className="dashboard-telegram">📱 Ваш Telegram ID: {telegramId}</p>
         ) : (
           <>
-            <p className="dashboard-error">❌ Telegram не привязан</p>
-            <TelegramLogin />
+            <p className="dashboard-username">👤 Пользователь: {username}</p>
+            {telegramId ? (
+              <p className="dashboard-telegram">📱 Ваш Telegram ID: {telegramId}</p>
+            ) : (
+              <>
+                <p className="dashboard-error">❌ Telegram не привязан</p>
+                <TelegramLogin />
+              </>
+            )}
           </>
         )}
       </div>

@@ -1,120 +1,91 @@
-import { useEffect, useState } from "react";
 import { useAuthStore } from "../store/auth";
-import { linkTelegram, getUserInfo, refreshAccessToken } from "../api/auth";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { getUserInfo, refreshAccessToken, restoreSession } from "../api/auth";
+import TelegramLogin from "../components/TelegramLogin";
 import "../styles/LinkTelegram.css";
 
 export default function LinkTelegram() {
-  const username = useAuthStore((state) => state.username);
-  const setTelegramId = useAuthStore((state) => state.setTelegramId);
-  const setToken = useAuthStore((state) => state.setToken);
   const token = useAuthStore((state) => state.token);
+  const setToken = useAuthStore((state) => state.setToken);
+  const username = useAuthStore((state) => state.username);
+  const setUsername = useAuthStore((state) => state.setUsername);
+  const telegramId = useAuthStore((state) => state.telegramId);
+  const setTelegramId = useAuthStore((state) => state.setTelegramId);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const handleTelegramLink = async () => {
-      if (!username) {
-        console.warn("⚠️ Пользователь не авторизован, перенаправляем на /login.");
-        navigate("/login");
-        return;
-      }
-
+    const fetchUserData = async () => {
       try {
-        console.log("🔄 Проверяем актуальность Access Token...");
         let accessToken = token || localStorage.getItem("token");
+        let storedUsername = username || localStorage.getItem("username");
 
         if (!accessToken) {
-          console.log("🔄 Access Token отсутствует, пробуем обновить...");
-          accessToken = await refreshAccessToken();
+          console.log("🔄 Токен отсутствует. Пробуем восстановить сессию...");
 
-          if (accessToken) {
-            setToken(accessToken);
-            localStorage.setItem("token", accessToken);
-          } else {
-            console.warn("⚠️ Ошибка обновления токена. Перенаправляем на страницу входа.");
+          try {
+            if (!storedUsername) {
+              throw new Error("Имя пользователя отсутствует в localStorage.");
+            }
+
+            accessToken = await restoreSession();
+            if (accessToken) {
+              console.log("✅ Сессия успешно восстановлена!");
+            } else {
+              console.warn("⚠️ Не удалось восстановить сессию. Пробуем обновить токен...");
+              accessToken = await refreshAccessToken();
+            }
+
+            if (accessToken) {
+              setToken(accessToken);
+              localStorage.setItem("token", accessToken);
+            } else {
+              throw new Error("Не удалось обновить или восстановить токен");
+            }
+          } catch (error) {
+            console.warn("⚠️ Ошибка восстановления или обновления токена. Перенаправляем на страницу входа.");
             navigate("/login");
             return;
           }
         }
 
-        console.log("✅ Access Token обновлен и используется.");
-      } catch (error) {
-        console.error("❌ Ошибка обновления токена:", error);
-        navigate("/login");
-        return;
-      }
-
-      try {
-        console.log("🔍 Проверяем, привязан ли Telegram...");
         const userData = await getUserInfo();
+
+        if (userData?.data?.username) {
+          setUsername(userData.data.username);
+          localStorage.setItem("username", userData.data.username);
+        }
+
         if (userData?.data?.telegram_id) {
-          console.log("✅ Telegram уже привязан:", userData.data.telegram_id);
           setTelegramId(userData.data.telegram_id);
           localStorage.setItem("telegramId", userData.data.telegram_id);
           navigate("/dashboard");
           return;
         }
       } catch (error) {
-        console.error("❌ Ошибка при проверке Telegram ID:", error);
-      }
-
-      const params = new URLSearchParams(window.location.search);
-      const telegramId = params.get("id");
-
-      if (!telegramId) {
-        console.warn("⚠️ Telegram ID не найден в URL.");
-        setError("Telegram ID не найден. Попробуйте ещё раз.");
-        setLoading(false);
-        return;
-      }
-
-      console.log("✅ Полученный Telegram ID из URL:", telegramId);
-      setLoading(true);
-
-      try {
-        console.log("📡 Отправляем запрос на привязку Telegram...");
-        await linkTelegram(username, telegramId);
-        console.log("✅ Telegram ID привязан успешно:", telegramId);
-
-        setTelegramId(telegramId);
-        localStorage.setItem("telegramId", telegramId);
-
-        alert("✅ Telegram успешно привязан!");
-
-        console.log("🔄 Запрашиваем обновленные данные пользователя...");
-        const updatedUserData = await getUserInfo();
-
-        if (updatedUserData?.data?.telegram_id) {
-          console.log("✅ Обновленные данные пользователя:", updatedUserData.data.telegram_id);
-          setTelegramId(updatedUserData.data.telegram_id);
-          localStorage.setItem("telegramId", updatedUserData.data.telegram_id);
-        } else {
-          console.warn("⚠️ Telegram ID отсутствует после обновления данных.");
-        }
-
-        navigate("/dashboard");
-      } catch (error) {
-        console.error("❌ Ошибка привязки Telegram:", error);
-        setError("Ошибка при привязке Telegram. Попробуйте снова.");
+        console.error("❌ Ошибка при загрузке данных пользователя:", error);
+        navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
-    handleTelegramLink();
-  }, [username, token, setTelegramId, setToken, navigate]);
+    fetchUserData();
+  }, [token, username, setToken, setUsername, setTelegramId, navigate]);
 
   return (
     <div className="link-telegram-container">
       <h2 className="link-telegram-title">🔗 Привязка Telegram</h2>
       {loading ? (
-        <p className="loading">🔄 Ожидание подтверждения...</p>
-      ) : error ? (
-        <p className="error">{error}</p>
-      ) : (
+        <p className="loading">🔄 Загрузка...</p>
+      ) : telegramId ? (
         <p className="success">✅ Telegram успешно привязан!</p>
+      ) : (
+        <>
+          <p className="error">❌ Telegram не привязан</p>
+          <TelegramLogin />
+        </>
       )}
     </div>
   );

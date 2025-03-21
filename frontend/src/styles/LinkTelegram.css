@@ -1,45 +1,59 @@
-/* Основной контейнер */
 .link-telegram-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
   min-height: 100vh;
-  padding: 20px;
+  padding: 80px 20px 20px; 
   width: 100%;
+  background: #f9f9f9;
 }
 
-/* Заголовок */
 .link-telegram-title {
-  font-size: 26px;
+  font-size: 28px;
   font-weight: bold;
   color: #333;
   margin-bottom: 20px;
+  text-align: center;
 }
 
-/* Ожидание загрузки */
 .loading {
   font-size: 18px;
   color: #888;
   animation: pulse 1.5s infinite;
+  margin-bottom: 10px;
 }
 
-/* Ошибка */
 .error {
   font-size: 18px;
   color: #e74c3c;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
-/* Успех */
 .success {
   font-size: 18px;
   color: #2ecc71;
   font-weight: bold;
+  margin-bottom: 10px;
 }
 
-/* Анимация ожидания */
+.telegram-button {
+  margin-top: 15px;
+  padding: 12px 24px;
+  font-size: 18px;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.telegram-button:hover {
+  background-color: #0056b3;
+}
+
 @keyframes pulse {
   0% { opacity: 0.6; }
   50% { opacity: 1; }
@@ -48,7 +62,7 @@
 
 @media (max-width: 600px) {
   .link-telegram-title {
-    font-size: 22px;
+    font-size: 24px;
   }
 
   .loading,
@@ -56,11 +70,9 @@
   .success {
     font-size: 16px;
   }
-}
 
-@media (min-width: 1200px) {
-  .link-telegram-container {
-    max-width: 800px;
-    margin: 0 auto;
+  .telegram-button {
+    font-size: 16px;
+    padding: 10px 20px;
   }
 }

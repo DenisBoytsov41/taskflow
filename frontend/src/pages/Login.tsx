@@ -50,11 +50,12 @@ export default function Login() {
         throw new Error("❌ Ошибка: Не получен Access Token.");
       }
 
-      console.log("✅ Вход выполнен успешно. Токен получен:", accessToken);
+      console.log("✅ Вход выполнен успешно.");
 
       setToken(accessToken);
       setUsernameStore(username);
       localStorage.setItem("token", accessToken);
+      localStorage.setItem("username", username);
 
       navigate("/dashboard");
     } catch (error) {
@@ -102,6 +103,17 @@ export default function Login() {
         >
           {loading ? "⏳ Вход..." : "Войти"}
         </button>
+
+        <p className="register-text">
+          Еще нет аккаунта?
+          <button 
+            type="button" 
+            className="register-button"
+            onClick={() => navigate("/register")}
+          >
+            Создать аккаунт
+          </button>
+        </p>
       </form>
     </div>
   );

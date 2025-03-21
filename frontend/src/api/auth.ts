@@ -21,13 +21,13 @@ export const login = async (username: string, password: string) => {
     }
 
     localStorage.setItem("token", accessToken);
+    localStorage.setItem("username", username);
     return accessToken;
   } catch (error) {
     console.error("Ошибка входа:", error);
     throw error;
   }
 };
-
 
 export const register = async (username: string, password: string) => {
   try {
@@ -49,6 +49,7 @@ export const register = async (username: string, password: string) => {
     }
 
     localStorage.setItem("token", accessToken);
+    localStorage.setItem("username", username);
     return accessToken;
   } catch (error) {
     console.error("Ошибка регистрации:", error);
@@ -77,32 +78,79 @@ export const linkTelegram = async (username: string, telegramId: string) => {
 
 export const refreshAccessToken = async () => {
   try {
-    const refreshToken = localStorage.getItem("refresh_token");
-    if (!refreshToken) {
-      throw new Error("Refresh Token отсутствует. Требуется повторный вход.");
+    console.log("🔄 Запрос на обновление Access Token...");
+
+    const username = localStorage.getItem("username");
+    if (!username) {
+      console.warn("⚠️ Имя пользователя отсутствует, требуется повторный вход.");
+      throw new Error("Имя пользователя отсутствует");
     }
 
     const response = await fetch(`${API_BACKEND_URL}/users/refresh`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ refresh_token: refreshToken }),
+      body: JSON.stringify({ username }),
     });
 
     if (!response.ok) {
+      console.error("❌ Ошибка при обновлении токена. Код:", response.status);
+      if (response.status === 401) {
+        console.warn("⚠️ Refresh Token истек или не найден, выполняем выход.");
+        logout();
+      }
       throw new Error("Ошибка при обновлении токена");
     }
 
     const responseData = await response.json();
-    const accessToken = responseData.data?.access_token;
+    const newAccessToken = responseData.data?.access_token;
 
-    if (!accessToken) {
-      throw new Error("Ответ сервера не содержит Access Token");
+    if (!newAccessToken) {
+      throw new Error("❌ Ответ сервера не содержит Access Token");
     }
 
-    localStorage.setItem("token", accessToken);
-    return accessToken;
+    localStorage.setItem("token", newAccessToken);
+    return newAccessToken;
   } catch (error) {
-    console.error("Ошибка обновления токена:", error);
+    console.error("❌ Ошибка обновления токена:", error);
+    throw error;
+  }
+};
+
+export const restoreSession = async () => {
+  try {
+    console.log("🔄 Попытка восстановления сессии...");
+
+    const username = localStorage.getItem("username");
+    if (!username) {
+      console.warn("⚠️ Имя пользователя отсутствует, требуется повторный вход.");
+      throw new Error("Имя пользователя отсутствует");
+    }
+
+    const response = await fetch(`${API_BACKEND_URL}/users/restore-session`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username }),
+    });
+
+    if (!response.ok) {
+      console.error("❌ Ошибка при восстановлении сессии. Код:", response.status);
+      if (response.status === 403) {
+        console.warn("⚠️ Вход с нового IP-адреса. Требуется повторный вход.");
+      }
+      throw new Error("Ошибка восстановления сессии");
+    }
+
+    const responseData = await response.json();
+    const newAccessToken = responseData.data?.access_token;
+
+    if (!newAccessToken) {
+      throw new Error("❌ Ответ сервера не содержит Access Token");
+    }
+
+    localStorage.setItem("token", newAccessToken);
+    return newAccessToken;
+  } catch (error) {
+    console.error("❌ Ошибка восстановления сессии:", error);
     throw error;
   }
 };
@@ -122,7 +170,7 @@ export const getUserInfo = async () => {
       }
 
       if (response.status === 401) {
-        console.warn("⚠️ Access Token истек. Обновляем...");
+        console.warn("⚠️ Access Token истек. Пробуем обновить...");
         accessToken = await refreshAccessToken();
         if (accessToken) {
           return fetchUserInfo(accessToken);
@@ -131,7 +179,7 @@ export const getUserInfo = async () => {
 
       throw new Error("Не удалось получить информацию о пользователе");
     } catch (error) {
-      console.error("Ошибка получения информации о пользователе:", error);
+      console.error("❌ Ошибка получения информации о пользователе:", error);
       throw error;
     }
   };
@@ -145,26 +193,26 @@ export const getUserInfo = async () => {
 
 export const logout = async (username?: string) => {
   try {
-    const user = username || localStorage.getItem("username"); 
+    const user = username || localStorage.getItem("username");
     if (!user) {
-      throw new Error("Ошибка выхода: Имя пользователя отсутствует");
+      console.warn("⚠️ Имя пользователя отсутствует, выполняем локальный выход.");
+    } else {
+      console.log("🚪 Отправляем запрос на выход для пользователя:", user);
+      await fetch(`${API_BACKEND_URL}/users/logout`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username: user }),
+      });
     }
-
-    await fetch(`${API_BACKEND_URL}/users/logout`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: user }),
-    });
 
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("telegramId");
 
     useAuthStore.getState().logout();
+    console.log("✅ Выход выполнен успешно");
   } catch (error) {
-    console.error("Ошибка выхода:", error);
+    console.error("❌ Ошибка выхода:", error);
     throw error;
   }
 };
-
-

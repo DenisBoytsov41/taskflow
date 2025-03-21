@@ -1,13 +1,15 @@
 from datetime import datetime, timedelta
 from typing import Optional
-import jwt as pyjwt 
+import requests
+import jwt as pyjwt
 from passlib.context import CryptContext
 from fastapi.security import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status, Request, Response
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import User
+from app.models import User, RefreshToken
 import os
+from loguru import logger 
 
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 REFRESH_SECRET_KEY = os.getenv("REFRESH_SECRET_KEY", "superrefreshsecretkey")
@@ -71,17 +73,58 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
 
     return user
 
-def refresh_access_token(request: Request, response: Response, db: Session = Depends(get_db)):
-    refresh_token = request.cookies.get("refresh_token")
-    if not refresh_token:
-        raise HTTPException(status_code=401, detail="Отсутствует Refresh Token")
-
-    payload = decode_refresh_token(refresh_token)
-    username = payload.get("sub")
-
+def refresh_access_token(db: Session, username: str):
     user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="Пользователь не найден")
 
+    refresh_token_entry = db.query(RefreshToken).filter(
+        RefreshToken.user_id == user.id,
+        RefreshToken.expires_at > datetime.utcnow()
+    ).first()
+
+    if not refresh_token_entry:
+        raise HTTPException(status_code=401, detail="Refresh Token отсутствует или истек. Требуется повторный вход.")
+
     new_access_token = create_access_token({"sub": user.username})
-    return {"access_token": new_access_token}
+
+    return new_access_token
+
+def restore_session(db: Session, username: str, client_ip: str):
+    user = db.query(User).filter(User.username == username).first()
+    if not user:
+        logger.warning(f"❌ [restore_session] Пользователь {username} не найден в БД.")
+        raise HTTPException(status_code=404, detail="Пользователь не найден")
+
+    token_entry = db.query(RefreshToken).filter(
+        RefreshToken.user_id == user.id
+    ).first()
+
+    if not token_entry:
+        logger.warning(f"⚠️ [restore_session] У пользователя {username} отсутствует Refresh Token в БД.")
+        raise HTTPException(status_code=401, detail="Refresh Token отсутствует. Требуется повторный вход.")
+
+    logger.info(f"🔍 [restore_session] Найден Refresh Token для пользователя {username}.")
+    logger.info(f"📌 [restore_session] Данные из БД: user_id={user.id}, username={user.username}, IP={client_ip}")
+
+    if token_entry.ip_address != client_ip:
+        logger.warning(f"⚠️ [restore_session] Несовпадение IP: {token_entry.ip_address} (БД) vs {client_ip} (новый).")
+        if user.telegram_id:
+            send_telegram_alert(user, client_ip)
+        raise HTTPException(status_code=403, detail="Вход с нового IP-адреса. Требуется повторный вход.")
+
+    if token_entry.expires_at < datetime.utcnow():
+        logger.warning(f"❌ [restore_session] Refresh Token истек для пользователя {username}.")
+        raise HTTPException(status_code=401, detail="Refresh Token истек. Требуется повторный вход.")
+
+    logger.success(f"✅ [restore_session] Сессия успешно восстановлена для пользователя {username}.")
+    return create_access_token({"sub": user.username})
+
+def send_telegram_alert(user: User, new_ip: str):
+    message = f"⚠️ Обнаружена попытка входа с нового IP: {new_ip}\nЕсли это не вы, срочно смените пароль!"
+    payload = {"chat_id": user.telegram_id, "message": message}
+    try:
+        requests.post(os.getenv("TELEGRAM_BOT_URL", "http://telegram-bot:8001/send-message"), json=payload)
+        logger.info(f"📩 [send_telegram_alert] Оповещение отправлено пользователю {user.username}.")
+    except Exception as e:
+        logger.error(f"❌ [send_telegram_alert] Ошибка отправки Telegram-оповещения: {e}")

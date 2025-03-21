@@ -56,11 +56,12 @@ export default function Register() {
         throw new Error("❌ Ошибка: Не получен Access Token.");
       }
 
-      console.log("✅ Регистрация успешна. Получен токен:", accessToken);
+      console.log("✅ Регистрация успешна.");
 
       setToken(accessToken);
       setUsernameStore(username);
       localStorage.setItem("token", accessToken);
+      localStorage.setItem("username", username);
 
       setSuccessMessage("✅ Регистрация успешна! Перенаправление...");
       setTimeout(() => navigate("/dashboard"), 2000);
@@ -109,6 +110,17 @@ export default function Register() {
         <button type="submit" className="register-button" disabled={loading}>
           {loading ? "⏳ Регистрация..." : "Зарегистрироваться"}
         </button>
+
+        <p className="login-text">
+          Уже есть аккаунт?
+          <button
+            type="button"
+            className="login-button"
+            onClick={() => navigate("/login")}
+          >
+            Войти
+          </button>
+        </p>
       </form>
     </div>
   );

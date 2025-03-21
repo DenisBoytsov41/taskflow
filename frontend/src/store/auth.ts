@@ -57,19 +57,23 @@ export const useAuthStore = create<AuthState>((set) => ({
   logout: async () => {
     try {
       const username = localStorage.getItem("username");
-      if (!username) {
-        throw new Error("Ошибка выхода: Имя пользователя отсутствует");
-      }
 
-      await logout(username);
+      if (username) {
+        console.log("🚪 Отправляем запрос на выход для пользователя:", username);
+        await logout(username);
+      } else {
+        console.warn("⚠️ Имя пользователя отсутствует, выполняем локальный выход.");
+      }
 
       localStorage.removeItem("token");
       localStorage.removeItem("username");
       localStorage.removeItem("telegramId");
 
       set({ token: null, username: null, telegramId: null });
+
+      console.log("✅ Выход выполнен успешно");
     } catch (error) {
-      console.error("Ошибка выхода:", error);
+      console.error("❌ Ошибка выхода:", error);
     }
   },
 }));

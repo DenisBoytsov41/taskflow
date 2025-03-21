@@ -1,4 +1,3 @@
-/* Основной контейнер */
 .login-container {
   display: flex;
   flex-direction: column;
@@ -10,7 +9,6 @@
   width: 100%;
 }
 
-/* Заголовок */
 .login-title {
   font-size: 26px;
   font-weight: bold;
@@ -18,7 +16,6 @@
   margin-bottom: 20px;
 }
 
-/* Ошибка */
 .error {
   font-size: 16px;
   color: #e74c3c;
@@ -32,23 +29,21 @@
   transition: opacity 0.3s ease-in-out;
 }
 
-/* Форма */
 .login-form {
   display: flex;
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  max-width: 320px; 
+  max-width: 320px;
 }
 
-/* Поля ввода */
 .input-field {
   padding: 12px;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 16px;
   width: 100%;
-  box-sizing: border-box; 
+  box-sizing: border-box;
   transition: border 0.3s ease-in-out;
 }
 
@@ -57,7 +52,6 @@
   outline: none;
 }
 
-/* Кнопка */
 .login-button {
   display: block;
   background-color: #3498db;
@@ -65,18 +59,17 @@
   padding: 12px;
   font-size: 18px;
   border: none;
-  border-radius: 5px;
+  border-radius: 6px;
   cursor: pointer;
   transition: background 0.3s, transform 0.1s ease;
   font-weight: bold;
-  width: 100%;
+  width: 100%; 
   text-align: center;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 
 .login-button:hover {
-  background-color: #2980b9;
-  transform: scale(1.03);
+  transform: scale(1.05);
 }
 
 .login-button:disabled {
@@ -90,7 +83,7 @@
 }
 
 .password-input {
-  padding-right: 40px; 
+  padding-right: 40px;
 }
 
 .password-toggle {
@@ -110,10 +103,31 @@
 }
 
 .password-toggle:hover {
-  color: #555; 
+  color: #555;
   transform: translateY(-50%);
 }
 
+.register-text {
+  margin-top: 12px;
+  font-size: 16px;
+  color: #333;
+}
+
+.register-button {
+  background: none;
+  border: none;
+  color: #3498db;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-left: 5px;
+  transition: text-decoration 0.3s ease-in-out;
+  text-decoration: none;
+}
+
+.register-button:hover {
+  text-decoration: underline;
+}
 
 @media (max-width: 600px) {
   .login-title {

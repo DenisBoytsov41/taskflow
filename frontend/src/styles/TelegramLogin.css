@@ -1,53 +1,54 @@
-/* Основной контейнер */
-.telegram-login-container {
+.link-telegram-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
   min-height: 100vh;
-  padding: 20px;
-  background-color: #f8f9fa;
-}
-
-/* Карточка */
-.telegram-login-card {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 100px 20px 20px; 
   width: 100%;
-  max-width: 380px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background: #f9f9f9;
+  text-align: center;
 }
 
-/* Заголовок */
-.telegram-title {
-  font-size: 26px;
+.link-telegram-title {
+  font-size: 30px;
   font-weight: bold;
-  margin-bottom: 15px;
   color: #333;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  margin-bottom: 25px;
 }
 
-/* Кнопка */
+.loading {
+  font-size: 20px;
+  color: #888;
+  animation: pulse 1.5s infinite;
+  margin-bottom: 12px;
+}
+
+.error {
+  font-size: 20px;
+  color: #e74c3c;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
+.success {
+  font-size: 20px;
+  color: #2ecc71;
+  font-weight: bold;
+  margin-bottom: 12px;
+}
+
 .telegram-button {
+  margin-top: 15px;
+  padding: 14px 26px;
+  font-size: 20px;
+  border-radius: 8px;
   background-color: #007bff;
   color: white;
-  padding: 12px 24px;
-  font-size: 18px;
-  border-radius: 8px;
   border: none;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  transition: background 0.3s ease, transform 0.1s ease;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.12);
 }
 
 .telegram-button:hover {
@@ -55,25 +56,25 @@
   transform: scale(1.05);
 }
 
-/* Сообщение об ошибке */
-.telegram-warning {
-  color: #ff4d4d;
-  font-size: 16px;
-  font-weight: bold;
-  margin-top: 10px;
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
 }
 
-@media (max-width: 480px) {
-  .telegram-login-card {
-      padding: 20px;
+@media (max-width: 600px) {
+  .link-telegram-title {
+    font-size: 26px;
   }
 
-  .telegram-title {
-      font-size: 22px;
+  .loading,
+  .error,
+  .success {
+    font-size: 18px;
   }
 
   .telegram-button {
-      font-size: 16px;
-      padding: 10px 20px;
+    font-size: 18px;
+    padding: 12px 24px;
   }
 }
