@@ -47,10 +47,10 @@ export default function Login() {
       const accessToken = await login(username, password);
 
       if (!accessToken) {
-        throw new Error("❌ Ошибка: Не получен Access Token.");
+        throw new Error("Ошибка: Не получен Access Token.");
       }
 
-      console.log("✅ Вход выполнен успешно.");
+      console.log("Вход выполнен успешно.");
 
       setToken(accessToken);
       setUsernameStore(username);
@@ -59,7 +59,7 @@ export default function Login() {
 
       navigate("/dashboard");
     } catch (error) {
-      console.error("❌ Ошибка входа:", error);
+      console.error("Ошибка входа:", error);
       setError("❌ Неверное имя пользователя или пароль.");
     } finally {
       setLoading(false);

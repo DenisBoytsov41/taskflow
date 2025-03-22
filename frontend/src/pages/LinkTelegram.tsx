@@ -22,7 +22,7 @@ export default function LinkTelegram() {
         let storedUsername = username || localStorage.getItem("username");
 
         if (!accessToken) {
-          console.log("🔄 Токен отсутствует. Пробуем восстановить сессию...");
+          console.log("Токен отсутствует. Пробуем восстановить сессию...");
 
           try {
             if (!storedUsername) {
@@ -31,9 +31,9 @@ export default function LinkTelegram() {
 
             accessToken = await restoreSession();
             if (accessToken) {
-              console.log("✅ Сессия успешно восстановлена!");
+              console.log("Сессия успешно восстановлена!");
             } else {
-              console.warn("⚠️ Не удалось восстановить сессию. Пробуем обновить токен...");
+              console.warn("Не удалось восстановить сессию. Пробуем обновить токен...");
               accessToken = await refreshAccessToken();
             }
 
@@ -64,7 +64,7 @@ export default function LinkTelegram() {
           return;
         }
       } catch (error) {
-        console.error("❌ Ошибка при загрузке данных пользователя:", error);
+        console.error("Ошибка при загрузке данных пользователя:", error);
         navigate("/login");
       } finally {
         setLoading(false);
@@ -72,6 +72,10 @@ export default function LinkTelegram() {
     };
 
     fetchUserData();
+
+    const interval = setInterval(fetchUserData, 3000); 
+
+    return () => clearInterval(interval); 
   }, [token, username, setToken, setUsername, setTelegramId, navigate]);
 
   return (
@@ -84,6 +88,7 @@ export default function LinkTelegram() {
       ) : (
         <>
           <p className="error">❌ Telegram не привязан</p>
+          <p className="hint">Отправьте команду <code>/start</code> боту в Telegram и подождите пару секунд...</p>
           <TelegramLogin />
         </>
       )}

@@ -1,3 +1,5 @@
+# main.py
+
 from sqlalchemy.sql import text
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -6,11 +8,17 @@ from loguru import logger
 from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
-from app.routes import users, tasks
+from app.routes import tasks 
+from app.routes.users.router import router as users_router  
+
 from lib.utils.logger import setup_logging
 from app.exception_handlers import (
-    bad_request_handler, unauthorized_handler, forbidden_handler, 
-    not_found_handler, internal_server_error_handler, integrity_error_handler
+    bad_request_handler,
+    unauthorized_handler,
+    forbidden_handler,
+    not_found_handler,
+    internal_server_error_handler,
+    integrity_error_handler
 )
 from app.responses import internal_error_response
 
@@ -30,11 +38,11 @@ app.add_middleware(
     allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"], 
+    allow_headers=["*"],
 )
 
-app.include_router(users.router, prefix="/users")
-app.include_router(tasks.router, prefix="/tasks")
+app.include_router(users_router, prefix="/users")
+app.include_router(tasks.router, prefix="/tasks") 
 
 app.add_exception_handler(IntegrityError, integrity_error_handler)
 app.add_exception_handler(HTTPException, bad_request_handler)

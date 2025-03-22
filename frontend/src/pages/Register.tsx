@@ -49,14 +49,14 @@ export default function Register() {
 
     setLoading(true);
     try {
-      console.log("📨 Отправка запроса на регистрацию...");
+      console.log("Отправка запроса на регистрацию...");
       const accessToken = await register(username, password);
 
       if (!accessToken) {
-        throw new Error("❌ Ошибка: Не получен Access Token.");
+        throw new Error("Ошибка: Не получен Access Token.");
       }
 
-      console.log("✅ Регистрация успешна.");
+      console.log("Регистрация успешна.");
 
       setToken(accessToken);
       setUsernameStore(username);
@@ -66,7 +66,7 @@ export default function Register() {
       setSuccessMessage("✅ Регистрация успешна! Перенаправление...");
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error) {
-      console.error("❌ Ошибка регистрации:", error);
+      console.error("Ошибка регистрации:", error);
       setError("❌ Пользователь с таким именем уже существует.");
     } finally {
       setLoading(false);

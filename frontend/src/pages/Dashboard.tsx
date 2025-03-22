@@ -22,7 +22,7 @@ export default function Dashboard() {
         let storedUsername = username || localStorage.getItem("username");
 
         if (!accessToken) {
-          console.log("🔄 Токен отсутствует. Пробуем восстановить сессию...");
+          console.log("Токен отсутствует. Пробуем восстановить сессию...");
 
           try {
             if (!storedUsername) {
@@ -31,9 +31,9 @@ export default function Dashboard() {
 
             accessToken = await restoreSession();
             if (accessToken) {
-              console.log("✅ Сессия успешно восстановлена!");
+              console.log("Сессия успешно восстановлена!");
             } else {
-              console.warn("⚠️ Не удалось восстановить сессию. Пробуем обновить токен...");
+              console.warn("Не удалось восстановить сессию. Пробуем обновить токен...");
               accessToken = await refreshAccessToken();
             }
 
@@ -44,14 +44,14 @@ export default function Dashboard() {
               throw new Error("Не удалось обновить или восстановить токен");
             }
           } catch (error) {
-            console.warn("⚠️ Ошибка восстановления или обновления токена. Перенаправляем на страницу входа.");
+            console.warn("Ошибка восстановления или обновления токена. Перенаправляем на страницу входа.");
             navigate("/login");
             return;
           }
         }
 
         const userData = await getUserInfo();
-        
+
         if (userData?.data?.username) {
           setUsername(userData.data.username);
           localStorage.setItem("username", userData.data.username);
@@ -62,14 +62,18 @@ export default function Dashboard() {
           localStorage.setItem("telegramId", userData.data.telegram_id);
         }
       } catch (error) {
-        console.error("❌ Ошибка при загрузке данных пользователя:", error);
+        console.error("Ошибка при загрузке данных пользователя:", error);
         navigate("/login");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUserData();
+    fetchUserData(); 
+
+    const interval = setInterval(fetchUserData, 3000);
+
+    return () => clearInterval(interval); 
   }, [token, username, setToken, setUsername, setTelegramId, navigate]);
 
   return (
@@ -86,6 +90,7 @@ export default function Dashboard() {
             ) : (
               <>
                 <p className="dashboard-error">❌ Telegram не привязан</p>
+                <p className="dashboard-hint">Отправьте команду <code>/start</code> боту в Telegram и подождите...</p>
                 <TelegramLogin />
               </>
             )}

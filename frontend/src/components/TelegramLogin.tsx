@@ -7,12 +7,12 @@ export default function TelegramLogin() {
 
   const handleTelegramAuth = () => {
     if (!username) {
-      console.error("❌ Ошибка: username отсутствует");
+      console.error("Ошибка: username отсутствует");
       return;
     }
 
     if (!API_BOT_USERNAME) {
-      console.error("❌ Ошибка: API_BOT_USERNAME не установлен в config.ts.");
+      console.error("Ошибка: API_BOT_USERNAME не установлен в config.ts.");
       return;
     }
 

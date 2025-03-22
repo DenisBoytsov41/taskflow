@@ -22,7 +22,7 @@ export default function Home() {
         let storedUsername = username || localStorage.getItem("username");
 
         if (!accessToken) {
-          console.log("🔄 Токен отсутствует. Пробуем восстановить сессию...");
+          console.log("Токен отсутствует. Пробуем восстановить сессию...");
 
           try {
             if (!storedUsername) {
@@ -31,9 +31,9 @@ export default function Home() {
 
             accessToken = await restoreSession();
             if (accessToken) {
-              console.log("✅ Сессия успешно восстановлена!");
+              console.log("Сессия успешно восстановлена!");
             } else {
-              console.warn("⚠️ Не удалось восстановить сессию. Пробуем обновить токен...");
+              console.warn("Не удалось восстановить сессию. Пробуем обновить токен...");
               accessToken = await refreshAccessToken();
             }
 
@@ -44,7 +44,7 @@ export default function Home() {
               throw new Error("Не удалось обновить или восстановить токен");
             }
           } catch (error) {
-            console.warn("⚠️ Ошибка восстановления или обновления токена. Выполняем выход.");
+            console.warn("Ошибка восстановления или обновления токена. Выполняем выход.");
             handleLogout();
             return;
           }
@@ -62,7 +62,7 @@ export default function Home() {
           localStorage.setItem("telegramId", userData.data.telegram_id);
         }
       } catch (error) {
-        console.error("❌ Ошибка при загрузке данных пользователя:", error);
+        console.error("Ошибка при загрузке данных пользователя:", error);
         handleLogout();
       } finally {
         setLoading(false);
@@ -73,7 +73,7 @@ export default function Home() {
   }, [token, username, setToken, setUsername, setTelegramId, navigate]);
 
   const handleLogout = () => {
-    console.log("🚪 Выполняем выход...");
+    console.log("Выполняем выход...");
     logout();
     localStorage.removeItem("token");
     localStorage.removeItem("username");

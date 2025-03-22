@@ -2,7 +2,7 @@ import os
 import logging
 import asyncio
 import aiohttp
-from aiogram import Bot, Dispatcher, types, F
+from aiogram import Bot, Dispatcher, types
 from aiogram.enums import ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message
@@ -27,7 +27,7 @@ async def start_command(message: Message):
     username = args[1].strip() if len(args) > 1 else None  
 
     if not username:
-        await message.answer("❌ Ошибка: Не удалось получить имя пользователя. Попробуйте снова.")
+        await message.answer("Ошибка: Не удалось получить имя пользователя. Попробуйте снова.")
         return
 
     async with aiohttp.ClientSession() as session:
@@ -40,12 +40,14 @@ async def start_command(message: Message):
                 if "application/json" in content_type:
                     result = await response.json()
                 else:
-                    result = await response.text() 
+                    result = await response.text()
 
-                print(f"DEBUG API Response: {result} (type: {type(result)})")  
+                print(f"DEBUG API Response: {result} (type: {type(result)})")
 
                 if response.status == 200:
-                    await message.answer(f"✅ {username}, ваш Telegram успешно привязан!")
+                    await message.answer(
+                        f"✅ {username}, ваш Telegram успешно привязан!\n\n"
+                    )
                 else:
                     error_message = result if isinstance(result, str) else result.get("detail", "Неизвестная ошибка")
                     await message.answer(f"❌ Ошибка привязки Telegram: {error_message}")
@@ -54,13 +56,11 @@ async def start_command(message: Message):
                 await message.answer(f"⚠️ Ошибка обработки ответа сервера: {str(e)}")
 
 async def run_fastapi():
-    """Запуск FastAPI внутри asyncio"""
     config = uvicorn.Config(bot_api_app, host="0.0.0.0", port=8001)
     server = uvicorn.Server(config)
     await server.serve()
 
 async def main():
-    """Основной асинхронный процесс"""
     asyncio.create_task(run_fastapi())
     await dp.start_polling(bot)
 
