@@ -6,26 +6,17 @@
   text-align: center;
   min-height: 100vh;
   padding: 20px;
-  background-color: #f8f9fa;
-}
-
-.register-card {
-  background: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
   width: 100%;
-  max-width: 320px; 
-  box-sizing: border-box; 
 }
 
 .register-title {
   font-size: 26px;
   font-weight: bold;
   color: #333;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
 }
 
@@ -33,13 +24,12 @@
   font-size: 16px;
   color: #27ae60;
   font-weight: bold;
+  padding: 8px;
+  max-width: 400px;
+  background: #eafaf1;
+  border-radius: 6px;
+  box-shadow: 0px 4px 8px rgba(39, 174, 96, 0.2);
   margin-bottom: 10px;
-}
-
-.error-container {
-  max-width: 320px; 
-  margin-bottom: 10px;
-  text-align: center;
 }
 
 .error-message {
@@ -47,13 +37,13 @@
   color: #e74c3c;
   font-weight: bold;
   padding: 8px;
-  max-width: 100%;
+  max-width: 400px;
   text-align: center;
   background: #fee;
   border-radius: 6px;
   box-shadow: 0px 4px 8px rgba(255, 0, 0, 0.2);
   transition: opacity 0.3s ease-in-out;
-  box-sizing: border-box; 
+  margin-bottom: 10px;
 }
 
 .register-form {
@@ -61,17 +51,17 @@
   flex-direction: column;
   gap: 12px;
   width: 100%;
-  max-width: 100%; 
+  max-width: 320px;
 }
 
 .input-field {
   padding: 12px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 5px;
   font-size: 16px;
   width: 100%;
-  transition: border-color 0.3s ease;
   box-sizing: border-box;
+  transition: border 0.3s ease-in-out;
 }
 
 .input-field:focus {
@@ -90,7 +80,7 @@
   cursor: pointer;
   transition: background 0.3s, transform 0.1s ease;
   font-weight: bold;
-  width: 100%; 
+  width: 100%;
   text-align: center;
   box-sizing: border-box;
 }
@@ -105,24 +95,29 @@
   cursor: not-allowed;
 }
 
-.password-field {
+.password-container {
   position: relative;
   width: 100%;
-  display: flex;
-  align-items: center;
 }
 
-.password-field input {
-  width: 100%;
+.password-input {
   padding-right: 40px;
 }
 
 .password-toggle {
   position: absolute;
+  top: 50%;
   right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
   cursor: pointer;
   color: #555;
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
 }
 
 .password-toggle:hover {
@@ -136,37 +131,37 @@
 }
 
 .login-button {
-  border: none;
-  color: #f8f9fa;
+  background-color: #3498db;
+  color: white;
   font-size: 16px;
   font-weight: bold;
+  padding: 12px;
+  border: none;
+  border-radius: 6px;
+  margin-top: 8px;
   cursor: pointer;
-  margin-left: 5px;
-  transition: color 0.3s ease-in-out;
+  width: 100%;
+  transition: background 0.3s, transform 0.1s ease;
 }
 
 .login-button:hover {
-  text-decoration: underline;
+  background-color: #2980b9;
+  transform: scale(1.03);
 }
 
-
-@media (max-width: 480px) {
-  .register-card {
-      padding: 20px;
-      max-width: 90%;
-  }
-
+@media (max-width: 600px) {
   .register-title {
-      font-size: 22px;
+    font-size: 22px;
   }
 
   .input-field {
-      font-size: 14px;
-      padding: 10px;
+    font-size: 14px;
+    padding: 10px;
   }
 
-  .register-button {
-      font-size: 16px;
-      padding: 10px;
+  .register-button,
+  .login-button {
+    font-size: 16px;
+    padding: 10px;
   }
 }

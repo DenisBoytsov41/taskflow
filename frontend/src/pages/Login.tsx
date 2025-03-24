@@ -23,6 +23,13 @@ export default function Login() {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (useAuthStore.getState().token) {
+      navigate("/", { replace: true }); 
+    }
+  }, []);
+  
+
   const validateInput = () => {
     if (username.length < 4) {
       setError("⚠️ Имя пользователя должно содержать минимум 4 символа.");

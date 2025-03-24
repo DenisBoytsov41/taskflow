@@ -24,6 +24,12 @@ export default function Register() {
     }
   }, [error]);
 
+  useEffect(() => {
+    if (useAuthStore.getState().token) {
+      navigate("/", { replace: true });
+    }
+  }, []);
+
   const validateInput = () => {
     if (!/^[a-zA-Z0-9_]+$/.test(username)) {
       setError("⚠️ Имя пользователя может содержать только буквы, цифры и _.");
@@ -49,14 +55,8 @@ export default function Register() {
 
     setLoading(true);
     try {
-      console.log("Отправка запроса на регистрацию...");
       const accessToken = await register(username, password);
-
-      if (!accessToken) {
-        throw new Error("Ошибка: Не получен Access Token.");
-      }
-
-      console.log("Регистрация успешна.");
+      if (!accessToken) throw new Error("Ошибка: Не получен Access Token.");
 
       setToken(accessToken);
       setUsernameStore(username);

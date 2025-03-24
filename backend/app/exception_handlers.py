@@ -2,45 +2,28 @@ from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.exc import IntegrityError
 
-def bad_request_handler(request: Request, exc: HTTPException):
+def http_exception_handler(request: Request, exc: HTTPException):
+    status = exc.status_code
+    default_message = exc.detail
+
+    message_map = {
+        400: ("Неверный запрос", default_message),
+        401: ("Ошибка авторизации", "Неверные учетные данные"),
+        403: ("Доступ запрещен", default_message),
+        404: ("Не найдено", default_message),
+    }
+
+    error, message = message_map.get(status, ("Ошибка", default_message))
+
     return JSONResponse(
-        status_code=400,
+        status_code=status,
         content={
-            "error": "Неверный запрос",
-            "message": exc.detail,
-            "code": 400
+            "error": error,
+            "message": message,
+            "code": status
         },
     )
 
-def unauthorized_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=401,
-        content={
-            "error": "Ошибка авторизации",
-            "message": "Неверные учетные данные",
-            "code": 401
-        },
-    )
-
-def forbidden_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=403,
-        content={
-            "error": "Доступ запрещен",
-            "message": exc.detail,
-            "code": 403
-        },
-    )
-
-def not_found_handler(request: Request, exc: HTTPException):
-    return JSONResponse(
-        status_code=404,
-        content={
-            "error": "Не найдено",
-            "message": exc.detail,
-            "code": 404
-        },
-    )
 
 def internal_server_error_handler(request: Request, exc: Exception):
     return JSONResponse(
@@ -51,6 +34,7 @@ def internal_server_error_handler(request: Request, exc: Exception):
             "code": 500
         },
     )
+
 
 def integrity_error_handler(request: Request, exc: IntegrityError):
     return JSONResponse(

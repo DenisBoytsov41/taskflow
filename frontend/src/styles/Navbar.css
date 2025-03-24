@@ -18,7 +18,7 @@
   justify-content: space-between;
   width: 100%;
   max-width: 1300px;
-  padding: 0 20px;
+  margin: 0 auto;
 }
 
 .navbar-links {
@@ -43,26 +43,81 @@
   transform: scale(1.05);
 }
 
-.telegram-info {
+.profile-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.profile-icon {
+  font-size: 22px;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.profile-icon:hover {
+  transform: scale(1.1);
   color: #f39c12;
+}
+
+.profile-menu {
+  position: absolute;
+  top: 56px;
+  right: 0;
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 220px;
+  z-index: 1001;
+  transition: all 0.3s ease;
+  transform: scale(1);
+  opacity: 1;
+}
+
+.profile-menu p {
+  color: #fff;
   font-weight: bold;
   font-size: 18px;
+  line-height: 1.5;
+  margin: 0 0 5px 0;
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-left: 15px;
+}
+
+.profile-menu button,
+.profile-menu a {
+  background-color: #3498db;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.3s;
+  padding: 12px 14px;
+}
+
+.profile-menu button:hover,
+.profile-menu a:hover {
+  background-color: #2980b9;
 }
 
 @media (max-width: 768px) {
-  .navbar {
-    flex-direction: column;
-    padding: 12px;
-  }
-  
   .navbar-container {
     flex-direction: column;
-    align-items: center;
-    gap: 12px;
+    gap: 10px;
   }
 
   .navbar-links {
@@ -70,9 +125,60 @@
     gap: 12px;
   }
 
-  .telegram-info {
-    padding-left: 0;
-    text-align: center;
+  .profile-menu {
+    top: 40px;
+    right: 0;
+  }
+}
+@media (max-width: 480px) {
+  .navbar {
+    padding: 10px 15px;
+  }
+
+  .navbar-links {
+    gap: 16px;
+  }
+
+  .navbar-links a {
     font-size: 16px;
+  }
+
+  .profile-icon {
+    font-size: 20px;
+  }
+
+  .profile-menu {
+    top: 38px;
+    min-width: 150px;
+    padding: 10px;
+  }
+
+  .profile-menu button,
+  .profile-menu a {
+    font-size: 13px;
+    padding: 8px;
+  }
+
+  .profile-menu p {
+    font-size: 14px;
+  }
+}
+@media (min-width: 1300px) {
+  .navbar {
+    padding: 18px 40px;
+  }
+
+  .navbar-links a {
+    font-size: 20px;
+  }
+
+  .profile-menu {
+    min-width: 200px;
+    padding: 16px;
+  }
+
+  .profile-menu button,
+  .profile-menu a {
+    font-size: 15px;
   }
 }

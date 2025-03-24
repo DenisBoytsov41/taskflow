@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import LinkTelegram from "./pages/LinkTelegram";
 import Dashboard from "./pages/Dashboard";
+import SettingsPage from "./pages/SettingsPage";
 import Navbar from "./components/Navbar";
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/link-telegram" element={<LinkTelegram />} />
         <Route path="/dashboard" element={<Dashboard />} /> 
+        <Route path="/settings" element={<SettingsPage  />} /> 
       </Routes>
     </Router>
   );

@@ -120,7 +120,6 @@
   font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  margin-left: 5px;
   transition: text-decoration 0.3s ease-in-out;
   text-decoration: none;
 }

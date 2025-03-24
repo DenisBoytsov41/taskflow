@@ -13,10 +13,7 @@ from app.routes.users.router import router as users_router
 
 from lib.utils.logger import setup_logging
 from app.exception_handlers import (
-    bad_request_handler,
-    unauthorized_handler,
-    forbidden_handler,
-    not_found_handler,
+    http_exception_handler,
     internal_server_error_handler,
     integrity_error_handler
 )
@@ -44,12 +41,14 @@ app.add_middleware(
 app.include_router(users_router, prefix="/users")
 app.include_router(tasks.router, prefix="/tasks") 
 
-app.add_exception_handler(IntegrityError, integrity_error_handler)
-app.add_exception_handler(HTTPException, bad_request_handler)
-app.add_exception_handler(HTTPException, unauthorized_handler)
-app.add_exception_handler(HTTPException, forbidden_handler)
-app.add_exception_handler(HTTPException, not_found_handler)
+print("\n📌 [FastAPI] Зарегистрированные маршруты:")
+for route in app.routes:
+    methods = ",".join(route.methods or [])
+    print(f"  {methods:10} {route.path}")
+
+app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, internal_server_error_handler)
+app.add_exception_handler(IntegrityError, integrity_error_handler)
 
 @app.get("/health")
 def health_check(db: Session = Depends(get_db)):
