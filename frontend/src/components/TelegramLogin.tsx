@@ -1,8 +1,13 @@
+import { useEffect } from "react";
 import { useAuthStore } from "../store/auth";
 import { API_BOT_USERNAME } from "../config";
 import "../styles/TelegramLogin.css";
 
-export default function TelegramLogin() {
+interface TelegramLoginProps {
+  onSuccess?: (telegramId: string) => void;
+}
+
+export default function TelegramLogin({ onSuccess }: TelegramLoginProps) {
   const username = useAuthStore((state) => state.username);
 
   const handleTelegramAuth = () => {
@@ -16,10 +21,25 @@ export default function TelegramLogin() {
       return;
     }
 
-    const telegramAuthURL = `https://telegram.me/${API_BOT_USERNAME}?start=${encodeURIComponent(username)}`;
-
+    const telegramAuthURL = `https://t.me/${API_BOT_USERNAME}?start=${encodeURIComponent(username)}`;
     window.open(telegramAuthURL, "_blank", "noopener,noreferrer");
   };
+
+  useEffect(() => {
+    const checkTelegramId = setInterval(() => {
+      const storedTelegramId = localStorage.getItem("telegram_id");
+
+      if (storedTelegramId) {
+        if (onSuccess) {
+          onSuccess(storedTelegramId);
+        }
+        clearInterval(checkTelegramId);
+        localStorage.removeItem("telegram_id");
+      }
+    }, 1500);
+
+    return () => clearInterval(checkTelegramId);
+  }, [onSuccess]);
 
   return (
     <div className="telegram-login-container">

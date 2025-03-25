@@ -12,6 +12,9 @@ import "../styles/SettingsPage.css";
 
 export default function SettingsPage() {
   const token = useAuthStore((state) => state.token);
+  const username = useAuthStore((state) => state.username);
+  const fullName = useAuthStore((state) => state.fullName);
+  const avatar = useAuthStore((state) => state.avatar);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -38,6 +41,12 @@ export default function SettingsPage() {
   return (
     <div className="settings-page">
       <h1>⚙️ Настройки профиля</h1>
+
+      <div className="settings-user-info">
+        {avatar && <img src={avatar} alt="Аватар" className="settings-avatar" />}
+        <p><strong> Пользователь:</strong> {fullName || username}</p>
+      </div>
+
       <div className="settings-grid">
         <ProfileAvatarForm />
         <NameUpdateForm />

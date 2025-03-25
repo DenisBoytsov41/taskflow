@@ -1,5 +1,3 @@
-# main.py
-
 from sqlalchemy.sql import text
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware

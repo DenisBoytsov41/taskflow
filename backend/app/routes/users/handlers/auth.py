@@ -6,7 +6,7 @@ from loguru import logger
 
 from app.auth import (
     get_db, get_password_hash, create_access_token, create_refresh_token,
-    verify_password, refresh_access_token, restore_session
+    verify_password, refresh_access_token, restore_session, get_current_user
 )
 from app.models import User, RefreshToken
 from app.responses import success_response, created_response

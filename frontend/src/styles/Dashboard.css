@@ -66,6 +66,15 @@
   background-color: #0056b3;
 }
 
+.dashboard-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+}
+
+
 @keyframes pulse {
   0% {
     opacity: 1;

@@ -17,7 +17,7 @@ export default function Navbar() {
         <div className="navbar-links">
           <Link to="/">🏠 Главная</Link>
           {token && <Link to="/dashboard">📊 Панель</Link>}
-          {token && telegramId === null && <Link to="/link-telegram">🔗 Привязать Telegram</Link>}
+          {token && !telegramId && <Link to="/link-telegram">🔗 Привязать Telegram</Link>}
         </div>
 
         {!token ? (

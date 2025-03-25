@@ -1,9 +1,21 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
+import { useAuthStore } from "../../store/auth";
+import { updateAvatar } from "../../api/auth/userSettings";
 import "../../styles/DropZone.css";
 
 export default function ProfileAvatarForm() {
+  const avatar = useAuthStore((state) => state.avatar);
+  const setAvatar = useAuthStore((state) => state.setAvatar);
+
   const [preview, setPreview] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (avatar) {
+      setPreview(avatar);
+    }
+  }, [avatar]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -23,8 +35,25 @@ export default function ProfileAvatarForm() {
     }
   };
 
-  const handleUpload = () => {
-    alert("Изображение сохранено");
+  const handleUpload = async () => {
+    if (!preview) return;
+    try {
+      const response = await updateAvatar(preview);
+      const newAvatarUrl = response.data?.avatar;
+
+      if (newAvatarUrl) {
+        setAvatar(newAvatarUrl);
+        setPreview(newAvatarUrl);
+        setMessage("✅ Аватар успешно обновлён!");
+      } else {
+        throw new Error("Ответ не содержит URL аватара");
+      }
+    } catch (error) {
+      console.error("❌ Ошибка обновления аватара:", error);
+      setMessage("❌ Не удалось обновить аватар.");
+    } finally {
+      setTimeout(() => setMessage(null), 3000);
+    }
   };
 
   return (
@@ -56,6 +85,8 @@ export default function ProfileAvatarForm() {
           </button>
         </div>
       )}
+
+      {message && <p className="status-message">{message}</p>}
     </div>
   );
 }

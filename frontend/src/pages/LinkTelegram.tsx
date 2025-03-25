@@ -2,11 +2,12 @@ import { useAuthStore } from "../store/auth";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useFetchUserData } from "../hooks/useFetchUserData";
-import TelegramLogin from "../components/TelegramLogin";
+import TelegramLogin from "../components/TelegramLogin"; // компонент с onSuccess
 import "../styles/LinkTelegram.css";
 
 export default function LinkTelegram() {
   const telegramId = useAuthStore((state) => state.telegramId);
+  const setTelegramId = useAuthStore((state) => state.setTelegramId);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
@@ -23,6 +24,11 @@ export default function LinkTelegram() {
     }
   }, [telegramId, navigate]);
 
+  const handleTelegramSuccess = (newTelegramId: string) => {
+    setTelegramId(newTelegramId);
+    navigate("/dashboard");
+  };
+
   return (
     <div className="link-telegram-container">
       <h2 className="link-telegram-title">🔗 Привязка Telegram</h2>
@@ -33,8 +39,10 @@ export default function LinkTelegram() {
       ) : (
         <>
           <p className="error">❌ Telegram не привязан</p>
-          <p className="hint">Отправьте команду <code>/start</code> боту в Telegram и подождите пару секунд...</p>
-          <TelegramLogin />
+          <p className="hint">
+            Отправьте команду <code>/start</code> боту в Telegram и подождите пару секунд...
+          </p>
+          <TelegramLogin onSuccess={handleTelegramSuccess} />
         </>
       )}
     </div>

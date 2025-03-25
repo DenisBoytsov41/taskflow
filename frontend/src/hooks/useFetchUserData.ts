@@ -1,15 +1,18 @@
 import { useEffect } from "react";
 import { useAuthStore } from "../store/auth";
-import { getUserInfo, refreshAccessToken, restoreSession } from "../api/auth";
+import { refreshAccessToken, restoreSession } from "../api/auth";
+import { getProfile } from "../api/auth/userSettings"
 import { useNavigate } from "react-router-dom";
 
 export function useFetchUserData(polling = true) {
-  const token = useAuthStore((state) => state.token);
-  const setToken = useAuthStore((state) => state.setToken);
-  const username = useAuthStore((state) => state.username);
-  const setUsername = useAuthStore((state) => state.setUsername);
-  const setTelegramId = useAuthStore((state) => state.setTelegramId);
-  const logout = useAuthStore((state) => state.logout);
+  const token = useAuthStore((s) => s.token);
+  const setToken = useAuthStore((s) => s.setToken);
+  const username = useAuthStore((s) => s.username);
+  const setUsername = useAuthStore((s) => s.setUsername);
+  const setTelegramId = useAuthStore((s) => s.setTelegramId);
+  const setFullName = useAuthStore((s) => s.setFullName);
+  const setAvatar = useAuthStore((s) => s.setAvatar);
+  const logout = useAuthStore((s) => s.logout);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -18,7 +21,7 @@ export function useFetchUserData(polling = true) {
     const fetchUserData = async () => {
       try {
         let accessToken = token || localStorage.getItem("token");
-        let storedUsername = username || localStorage.getItem("username");
+        const storedUsername = username || localStorage.getItem("username");
 
         if (!accessToken && storedUsername) {
           accessToken = await restoreSession() || await refreshAccessToken();
@@ -30,17 +33,31 @@ export function useFetchUserData(polling = true) {
           }
         }
 
-        const userData = await getUserInfo();
+        const response = await getProfile();
+        const data = response.data;
 
-        if (userData?.data?.username) {
-          setUsername(userData.data.username);
-          localStorage.setItem("username", userData.data.username);
+        if (data?.username) {
+          setUsername(data.username);
+          localStorage.setItem("username", data.username);
         }
 
-        if (userData?.data?.telegram_id) {
-          setTelegramId(userData.data.telegram_id);
-          localStorage.setItem("telegramId", userData.data.telegram_id);
+        setTelegramId(data?.telegram_id || null);
+        localStorage.setItem("telegramId", data?.telegram_id || "");
+
+        setFullName(data?.full_name || null);
+        if (data?.full_name) {
+          localStorage.setItem("fullName", data.full_name);
+        } else {
+          localStorage.removeItem("fullName");
         }
+
+        setAvatar(data?.avatar || null);
+        if (data?.avatar) {
+          localStorage.setItem("avatar", data.avatar);
+        } else {
+          localStorage.removeItem("avatar");
+        }
+
       } catch (error) {
         console.warn("❌ Ошибка загрузки данных, выполняем logout:", error);
         logout();
@@ -58,5 +75,16 @@ export function useFetchUserData(polling = true) {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [token, username, setToken, setUsername, setTelegramId, logout, navigate, polling]);
+  }, [
+    token,
+    username,
+    setToken,
+    setUsername,
+    setTelegramId,
+    setFullName,
+    setAvatar,
+    logout,
+    navigate,
+    polling
+  ]);
 }

@@ -73,6 +73,25 @@
   background-color: #2980b9;
 }
 
+.settings-user-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 auto 32px;
+  justify-content: center;
+  text-align: center;
+  font-size: 18px;
+}
+
+.settings-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #ccc;
+}
+
+
 @media (max-width: 900px) {
   .settings-grid {
     grid-template-columns: 1fr;

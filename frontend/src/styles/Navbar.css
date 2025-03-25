@@ -114,6 +114,35 @@
   background-color: #2980b9;
 }
 
+.profile-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  object-fit: cover;
+  border: 2px solid #ccc;
+  transition: transform 0.2s;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+.profile-placeholder {
+  width: 36px;
+  height: 36px;
+  background-color: #3498db;
+  color: white;
+  font-weight: bold;
+  font-size: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+
 @media (max-width: 768px) {
   .navbar-container {
     flex-direction: column;

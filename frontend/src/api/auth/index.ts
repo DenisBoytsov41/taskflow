@@ -5,3 +5,4 @@ export * from "./refresh";
 export * from "./restore";
 export * from "./me";
 export * from "./logout";
+export * from "./userSettings";

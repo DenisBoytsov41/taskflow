@@ -7,6 +7,8 @@ import "../styles/Home.css";
 export default function Home() {
   const token = useAuthStore((state) => state.token);
   const username = useAuthStore((state) => state.username);
+  const fullName = useAuthStore((state) => state.fullName);
+  const avatar = useAuthStore((state) => state.avatar);
   const telegramId = useAuthStore((state) => state.telegramId);
   const logout = useAuthStore((state) => state.logout);
   const navigate = useNavigate();
@@ -35,6 +37,8 @@ export default function Home() {
         <p className="home-loading">🔄 Загрузка...</p>
       ) : token ? (
         <>
+          {avatar && <img src={avatar} alt="Аватар" className="home-avatar" />}
+          {fullName && <p className="home-fullname">🧑‍💼 ФИО: {fullName}</p>}
           <p className="home-text">✅ Вы вошли в систему.</p>
           <p className="home-username">👤 Ваш логин: {username}</p>
           {telegramId && <p className="home-telegram">📱 Ваш Telegram ID: {telegramId}</p>}

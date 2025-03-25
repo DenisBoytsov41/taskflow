@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { FaUserCircle } from "react-icons/fa";
 import { useAuthStore } from "../store/auth";
+import "../styles/ProfileMenu.css";
 
 interface ProfileMenuProps {
   menuOpen: boolean;
@@ -12,7 +12,11 @@ interface ProfileMenuProps {
 export default function ProfileMenu({ menuOpen, setMenuOpen, dropdownRef }: ProfileMenuProps) {
   const navigate = useNavigate();
   const username = useAuthStore((state) => state.username);
+  const fullName = useAuthStore((state) => state.fullName);
+  const avatar = useAuthStore((state) => state.avatar);
   const logout = useAuthStore((state) => state.logout);
+
+  const displayName = fullName || username;
 
   const handleLogout = () => {
     logout();
@@ -34,16 +38,20 @@ export default function ProfileMenu({ menuOpen, setMenuOpen, dropdownRef }: Prof
 
   return (
     <div className="profile-section" ref={dropdownRef}>
-      <FaUserCircle
-        className="profile-icon"
-        onClick={() => setMenuOpen((prev) => !prev)}
-        title={username || undefined}
-      />
+      <div className="avatar-wrapper" onClick={() => setMenuOpen((prev) => !prev)} title={username || ""}>
+        {avatar ? (
+          <img src={avatar} alt="Аватар" className="profile-avatar" />
+        ) : (
+          <div className="profile-placeholder">{username?.charAt(0).toUpperCase() || "?"}</div>
+        )}
+        {username && <span className="profile-username">{username}</span>}
+      </div>
+
       {menuOpen && (
         <div className="profile-menu">
-          <p>👋 Привет, {username}</p>
+          <p>👋 {displayName}</p>
           <Link to="/dashboard" onClick={() => setMenuOpen(false)}>
-            📊 Dashboard
+            📊 Панель
           </Link>
           <Link to="/settings" onClick={() => setMenuOpen(false)}>
             ⚙️ Настройки

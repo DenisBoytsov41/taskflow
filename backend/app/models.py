@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime, timedelta
+from datetime import datetime
 from app.database import Base
 
 class User(Base):
@@ -8,8 +8,10 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True, nullable=False)
+    full_name = Column(String, nullable=True) 
+    avatar_url = Column(String, nullable=True) 
+    telegram_id = Column(String, unique=True, nullable=True)  
     password_hash = Column(String, nullable=False)
-    telegram_id = Column(String, unique=True, nullable=True)
 
     tasks = relationship("Task", back_populates="user", cascade="all, delete-orphan")
     refresh_tokens = relationship("RefreshToken", back_populates="user", cascade="all, delete-orphan")
