@@ -13,57 +13,19 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
   width: 100%;
-  max-width: 700px;
-  padding: 25px;
-  background: white;
+  max-width: 800px;
+  padding: 30px;
+  background: #ffffff;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .dashboard-title {
-  font-size: 30px;
+  font-size: 32px;
   font-weight: bold;
   color: #333;
   margin-bottom: 20px;
-}
-
-.dashboard-loading {
-  margin-top: 10px;
-  font-size: 18px;
-  color: #777;
-  animation: pulse 1.5s infinite ease-in-out;
-}
-
-.dashboard-telegram {
-  margin-top: 10px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #007bff;
-}
-
-.dashboard-error {
-  margin-top: 10px;
-  font-size: 18px;
-  font-weight: bold;
-  color: #ff4d4d;
-}
-
-.dashboard-button {
-  margin-top: 20px;
-  padding: 12px 24px;
-  font-size: 18px;
-  border-radius: 6px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.dashboard-button:hover {
-  background-color: #0056b3;
 }
 
 .dashboard-avatar {
@@ -71,20 +33,98 @@
   height: 80px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
+.dashboard-name,
+.dashboard-username,
+.dashboard-telegram {
+  font-size: 18px;
+  margin: 4px 0;
+}
+
+.dashboard-telegram {
+  color: #007bff;
+  font-weight: 500;
+}
+
+.dashboard-loading {
+  margin-top: 10px;
+  font-size: 18px;
+  color: #555;
+  animation: pulse 1.5s infinite ease-in-out;
+}
+
+.dashboard-error {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff4d4d;
+}
+
+.dashboard-success {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #28a745;
+}
+
+.task-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 20px 0 10px;
+}
+
+.task-filters button {
+  padding: 8px 16px;
+  font-size: 15px;
+  background: #e9ecef;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.task-filters button:hover {
+  background: #d4d4d4;
+}
+
+.task-filters button.active {
+  background: #007bff;
+  color: white;
+}
+
+.task-list {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.task-card {
+  background-color: #f1f3f5;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  text-align: left;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.task-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+  color: #212529;
+}
+
+.task-card p {
+  margin: 4px 0;
+  font-size: 15px;
+  color: #495057;
+}
 
 @keyframes pulse {
-  0% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-  100% {
-    opacity: 1;
-  }
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
 }
 
 @media (max-width: 600px) {
@@ -92,19 +132,12 @@
     font-size: 26px;
   }
 
-  .dashboard-telegram {
-    font-size: 20px;
+  .task-filters button {
+    font-size: 14px;
+    padding: 6px 12px;
   }
 
-  .dashboard-button {
+  .task-card h3 {
     font-size: 16px;
-    padding: 10px 20px;
-  }
-}
-
-@media (min-width: 1200px) {
-  .dashboard-container {
-    max-width: 900px;
-    margin: 0 auto;
   }
 }

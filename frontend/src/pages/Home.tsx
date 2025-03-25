@@ -31,7 +31,7 @@ export default function Home() {
 
   return (
     <div className="home-container">
-      <h1 className="home-title">🏠 Добро пожаловать в Project Manager</h1>
+      <h1 className="home-title">🏠 Добро пожаловать в ToDo</h1>
 
       {loading ? (
         <p className="home-loading">🔄 Загрузка...</p>
