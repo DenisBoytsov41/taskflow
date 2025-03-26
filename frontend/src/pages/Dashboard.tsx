@@ -2,55 +2,66 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import { useTaskStore } from "../store/task";
-import { TaskInput, Task } from "../types/task";
+import { TaskInput } from "../types/task";
+import DashboardHeader from "../components/DashboardHeader";
+import TaskForm from "../components/TaskForm";
+import TaskFilters from "../components/TaskFilters";
+import TaskList from "../components/TaskList/TaskList";
 import "../styles/Dashboard.css";
+import { useFetchUserData } from "../hooks/useFetchUserData";
+
+function toLocalISOString(date: Date) {
+  const tzOffset = date.getTimezoneOffset() * 60000;
+  return new Date(date.getTime() - tzOffset).toISOString().slice(0, -1);
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { token, logout } = useAuthStore();
+
+  useFetchUserData();
 
   const {
-    fullName,
-    username,
-    avatar,
-    telegramId,
-    token,
-    logout,
-  } = useAuthStore();
-
-  const {
-    tasks,
-    loading,
     fetchAllTasks,
     fetchCompletedTasks,
     fetchOverdueTasks,
     fetchAlmostOverdueTasks,
     addTask,
+    assignUser,
   } = useTaskStore();
 
   const [view, setView] = useState<"all" | "done" | "overdue" | "expiring">("all");
   const [showForm, setShowForm] = useState(false);
   const [loadingAuth, setLoadingAuth] = useState(true);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    id?: number;
+    title: string;
+    description: string;
+    end_time: string;
+    start_time?: string;
+    status?: string;
+    creator?: string;
+    assignedUserId?: string;
+  }>({
     title: "",
     description: "",
     end_time: "",
+    status: "К выполнению", 
+    assignedUserId: "",
   });
-
-  // Показываем "загрузку авторизации"
+  
   useEffect(() => {
     const timeout = setTimeout(() => setLoadingAuth(false), 300);
     return () => clearTimeout(timeout);
   }, []);
 
-  // Редирект если нет токена
   useEffect(() => {
     if (!token && !loadingAuth) {
       navigate("/login", { replace: true });
     }
-  }, [token, loadingAuth, navigate]);
+  }, [token, loadingAuth]);
 
-  // Загрузка задач при смене фильтра
   useEffect(() => {
     if (token && !loadingAuth) {
       loadTasks();
@@ -64,22 +75,18 @@ export default function Dashboard() {
   };
 
   const loadTasks = async () => {
-    try {
-      switch (view) {
-        case "done":
-          await fetchCompletedTasks();
-          break;
-        case "overdue":
-          await fetchOverdueTasks();
-          break;
-        case "expiring":
-          await fetchAlmostOverdueTasks();
-          break;
-        default:
-          await fetchAllTasks();
-      }
-    } catch (error) {
-      console.error("Ошибка загрузки задач:", error);
+    switch (view) {
+      case "done":
+        await fetchCompletedTasks();
+        break;
+      case "overdue":
+        await fetchOverdueTasks();
+        break;
+      case "expiring":
+        await fetchAlmostOverdueTasks();
+        break;
+      default:
+        await fetchAllTasks();
     }
   };
 
@@ -93,18 +100,29 @@ export default function Dashboard() {
     const newTask: TaskInput = {
       title: formData.title,
       description: formData.description || undefined,
-      end_time: new Date(formData.end_time).toISOString(),
-      start_time: new Date().toISOString(),
+      end_time: toLocalISOString(new Date(formData.end_time)),
+      start_time: toLocalISOString(new Date()),
       reminder_time: undefined,
-      status: "To Do",
+      status: formData.status as TaskInput["status"],
     };
 
     try {
-      await addTask(newTask);
-      setFormData({ title: "", description: "", end_time: "" });
+      const created = await addTask(newTask);
+
+      if (formData.assignedUserId) {
+        await assignUser(created.id, Number(formData.assignedUserId));
+      }
+      setFormData({
+        title: "",
+        description: "",
+        end_time: "",
+        status: "К выполнению",
+        assignedUserId: "",
+      });
+
       setShowForm(false);
-    } catch (error) {
-      console.error("Ошибка создания задачи", error);
+    } catch (err) {
+      console.error("Ошибка при создании задачи:", err);
     }
   };
 
@@ -119,68 +137,23 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-content">
-        <h1 className="dashboard-title">📋 Мои задачи</h1>
+        <DashboardHeader onLogout={handleLogout} />
 
-        {avatar && <img src={avatar} alt="Аватар" className="dashboard-avatar" />}
-        {fullName && <p className="dashboard-name">🧑‍💼 ФИО: {fullName}</p>}
-        <p className="dashboard-username">👤 Логин: {username}</p>
-        {telegramId && <p className="dashboard-telegram">📱 Telegram ID: {telegramId}</p>}
-
-        <div className="task-actions">
-          <button className="dashboard-button" onClick={() => setShowForm(true)}>
-            ➕ Новая задача
-          </button>
-        </div>
+        <button className="dashboard-button" onClick={() => setShowForm(true)}>
+          ➕ Новая задача
+        </button>
 
         {showForm && (
-          <form onSubmit={handleCreate} className="task-form">
-            <input
-              type="text"
-              placeholder="Название задачи"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
-            />
-            <textarea
-              placeholder="Описание"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            />
-            <input
-              type="datetime-local"
-              value={formData.end_time}
-              onChange={(e) => setFormData({ ...formData, end_time: e.target.value })}
-              required
-            />
-            <div className="form-actions">
-              <button type="submit">✅ Создать</button>
-              <button type="button" onClick={() => setShowForm(false)}>❌ Отмена</button>
-            </div>
-          </form>
+          <TaskForm
+            formData={formData}
+            setFormData={setFormData}
+            onCancel={() => setShowForm(false)}
+            onSubmit={handleCreate}
+          />
         )}
 
-        <div className="task-filters">
-          <button className={view === "all" ? "active" : ""} onClick={() => setView("all")}>📝 Все</button>
-          <button className={view === "done" ? "active" : ""} onClick={() => setView("done")}>✅ Завершённые</button>
-          <button className={view === "overdue" ? "active" : ""} onClick={() => setView("overdue")}>⌛ Просроченные</button>
-          <button className={view === "expiring" ? "active" : ""} onClick={() => setView("expiring")}>⏳ Скоро дедлайн</button>
-        </div>
-
-        <div className="task-list">
-          {loading ? (
-            <p className="dashboard-loading">🔄 Загрузка задач...</p>
-          ) : !Array.isArray(tasks) || tasks.length === 0 ? (
-            <p>📭 Задачи не найдены</p>
-          ) : (
-            tasks.map((task: Task) => (
-              <div key={task.id} className="task-card">
-                <h3>{task.title}</h3>
-                <p>📅 Срок: {task.end_time ? new Date(task.end_time).toLocaleString() : "—"}</p>
-                <p>📌 Статус: {task.status}</p>
-              </div>
-            ))
-          )}
-        </div>
+        <TaskFilters view={view} setView={setView} />
+        <TaskList />
       </div>
     </div>
   );

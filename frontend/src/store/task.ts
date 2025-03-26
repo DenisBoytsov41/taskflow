@@ -25,7 +25,7 @@ interface TaskStore {
   fetchOverdueTasks: () => Promise<void>;
   fetchAlmostOverdueTasks: () => Promise<void>;
 
-  addTask: (task: TaskInput) => Promise<void>;
+  addTask: (task: TaskInput) => Promise<Task>;
   editTask: (taskId: number, updatedData: Partial<TaskInput>) => Promise<void>;
   removeTask: (taskId: number) => Promise<void>;
   changeTaskStatus: (taskId: number, status: string) => Promise<void>;
@@ -102,15 +102,17 @@ export const useTaskStore = create<TaskStore>((set) => ({
   addTask: async (task: TaskInput) => {
     try {
       set({ loading: true });
-      await createTask(task);
+      const created = await createTask(task);
       await useTaskStore.getState().fetchAllTasks();
+      return created; 
     } catch (err: any) {
       set({ error: err.message });
+      throw err;
     } finally {
       set({ loading: false });
     }
   },
-
+  
   editTask: async (taskId, updatedData) => {
     try {
       set({ loading: true });

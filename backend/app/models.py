@@ -1,5 +1,5 @@
 from sqlalchemy import (
-    Column, Integer, String, ForeignKey, DateTime, Text, Table
+    Column, Integer, String, ForeignKey, DateTime, Text, Table, Boolean
 )
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -52,6 +52,7 @@ class Task(Base):
         secondary=task_user_association,
         back_populates="assigned_tasks"
     )
+    notified = Column(Boolean, default=False)
 
 
 class RefreshToken(Base):

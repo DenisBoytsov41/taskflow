@@ -1,9 +1,10 @@
 import os
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import and_, or_
+from sqlalchemy import and_, or_, TIMESTAMP
+from sqlalchemy.sql import cast
 
 from app.auth import get_db, get_current_user
 from app.models import Task, User
@@ -11,13 +12,28 @@ from app.responses import (
     success_response, created_response, not_found_response, bad_request_response
 )
 from app.routes.schemas.task import TaskCreate, TaskUpdate, TaskOut
-from typing import List
+from app.utils.notifier import notify_users_about_expiring_tasks
+from loguru import logger
+from typing import List, Optional
 
 router = APIRouter(tags=["tasks"])
+
 TELEGRAM_BOT_URL = os.getenv("TELEGRAM_BOT_URL", "http://telegram-bot:8001/send-message")
+MSK = timezone(timedelta(hours=3))
 
 
-# Создать задачу
+def now_utc():
+    return datetime.now(timezone.utc)
+
+
+def to_utc_from_local(dt: Optional[datetime]) -> Optional[datetime]:
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=MSK)
+    return dt.astimezone(timezone.utc)
+
+
 @router.post("/", response_model=TaskOut)
 def create_task(
     task_data: TaskCreate,
@@ -27,20 +43,18 @@ def create_task(
     task = Task(
         title=task_data.title,
         description=task_data.description,
-        start_time=task_data.start_time,
-        end_time=task_data.end_time,
-        reminder_time=task_data.reminder_time,
+        start_time=to_utc_from_local(task_data.start_time),
+        end_time=to_utc_from_local(task_data.end_time),
+        reminder_time=to_utc_from_local(task_data.reminder_time),
         status=task_data.status,
         creator_id=user.id,
     )
     db.add(task)
     db.commit()
     db.refresh(task)
-
     return task
 
 
-# Обновить задачу
 @router.put("/{task_id}", response_model=TaskOut)
 def update_task(
     task_id: int,
@@ -52,7 +66,13 @@ def update_task(
     if not task:
         return not_found_response("Задача не найдена")
 
-    for field, value in updates.dict(exclude_unset=True).items():
+    update_data = updates.dict(exclude_unset=True, exclude_none=True)
+
+    for field in ["start_time", "end_time", "reminder_time"]:
+        if field in update_data:
+            update_data[field] = to_utc_from_local(update_data[field])
+
+    for field, value in update_data.items():
         setattr(task, field, value)
 
     db.commit()
@@ -60,7 +80,6 @@ def update_task(
     return task
 
 
-# Удалить задачу
 @router.delete("/{task_id}")
 def delete_task(task_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     task = db.query(Task).filter(Task.id == task_id, Task.creator_id == user.id).first()
@@ -72,7 +91,6 @@ def delete_task(task_id: int, db: Session = Depends(get_db), user: User = Depend
     return success_response({}, "Задача удалена")
 
 
-# Назначить пользователя на задачу
 @router.post("/{task_id}/assign/{user_id}")
 def assign_user(task_id: int, user_id: int, db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -87,7 +105,6 @@ def assign_user(task_id: int, user_id: int, db: Session = Depends(get_db)):
     return success_response({}, "Пользователь назначен на задачу")
 
 
-# Удалить пользователя из задачи
 @router.post("/{task_id}/unassign/{user_id}")
 def unassign_user(task_id: int, user_id: int, db: Session = Depends(get_db)):
     task = db.query(Task).filter(Task.id == task_id).first()
@@ -102,53 +119,87 @@ def unassign_user(task_id: int, user_id: int, db: Session = Depends(get_db)):
     return success_response({}, "Пользователь отвязан от задачи")
 
 
-# Мои задачи
 @router.get("/my", response_model=List[TaskOut])
 def get_my_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     tasks = db.query(Task).filter(
-        or_(Task.creator_id == user.id, Task.assigned_users.any(id=user.id))
-    ).all()
-    return tasks
-
-
-# Завершенные задачи
-@router.get("/completed", response_model=List[TaskOut])
-def get_completed_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    tasks = db.query(Task).filter(Task.status == "Done", Task.creator_id == user.id).all()
-    return tasks
-
-
-# Актуальные задачи
-@router.get("/active", response_model=List[TaskOut])
-def get_active_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    now = datetime.utcnow()
-    tasks = db.query(Task).filter(
-        and_(Task.status != "Done", Task.end_time > now, Task.creator_id == user.id)
-    ).all()
-    return tasks
-
-
-# Просроченные задачи
-@router.get("/overdue", response_model=List[TaskOut])
-def get_overdue_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    now = datetime.utcnow()
-    tasks = db.query(Task).filter(
-        and_(Task.status != "Done", Task.end_time < now, Task.creator_id == user.id)
-    ).all()
-    return tasks
-
-
-# Задачи, которые скоро просрочатся
-@router.get("/expiring", response_model=List[TaskOut])
-def get_expiring_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
-    now = datetime.utcnow()
-    soon = now + timedelta(minutes=30)
-    tasks = db.query(Task).filter(
-        and_(
-            Task.status != "Done",
-            Task.end_time <= soon,
-            Task.end_time > now,
-            Task.creator_id == user.id
+        or_(
+            Task.creator_id == user.id,
+            Task.assigned_users.any(id=user.id)
         )
     ).all()
     return tasks
+
+
+@router.get("/completed", response_model=List[TaskOut])
+def get_completed_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    tasks = db.query(Task).filter(
+        Task.status == "Завершено",
+        or_(
+            Task.creator_id == user.id,
+            Task.assigned_users.any(id=user.id)
+        )
+    ).all()
+    return tasks
+
+
+@router.get("/active", response_model=List[TaskOut])
+def get_active_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    now = now_utc()
+    tasks = db.query(Task).filter(
+        and_(
+            Task.status != "Завершено",
+            cast(Task.end_time, TIMESTAMP(timezone=True)) > now,
+            or_(
+                Task.creator_id == user.id,
+                Task.assigned_users.any(id=user.id)
+            )
+        )
+    ).all()
+    return tasks
+
+
+@router.get("/overdue", response_model=List[TaskOut])
+def get_overdue_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    now = now_utc()
+    tasks = db.query(Task).filter(
+        and_(
+            Task.status != "Завершено",
+            cast(Task.end_time, TIMESTAMP(timezone=True)) < now,
+            or_(
+                Task.creator_id == user.id,
+                Task.assigned_users.any(id=user.id)
+            )
+        )
+    ).all()
+    return tasks
+
+
+@router.get("/expiring", response_model=List[TaskOut])
+def get_expiring_tasks(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    now = now_utc()
+    soon = now + timedelta(minutes=30)
+
+    logger.info("🔍 Проверка задач с дедлайном <= 30 минут")
+    logger.info(f"🕒 now UTC: {now.isoformat()} | MSK: {now.astimezone(MSK).isoformat()}")
+    logger.info(f"⏳ Deadline должен быть между {now.isoformat()} и {soon.isoformat()}")
+
+    tasks = db.query(Task).filter(
+        and_(
+            Task.status != "Завершено",
+            cast(Task.end_time, TIMESTAMP(timezone=True)) > now,
+            cast(Task.end_time, TIMESTAMP(timezone=True)) <= soon,
+            or_(
+                Task.creator_id == user.id,
+                Task.assigned_users.any(id=user.id)
+            )
+        )
+    ).all()
+
+    logger.info(f"✅ Найдено задач с приближающимся дедлайном: {len(tasks)}")
+    return tasks
+
+
+@router.post("/notify-expiring")
+def trigger_notifications(db: Session = Depends(get_db)):
+    notify_users_about_expiring_tasks(db)
+    return success_response({}, "🔔 Уведомления отправлены")

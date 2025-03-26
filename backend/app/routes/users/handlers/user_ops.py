@@ -11,9 +11,19 @@ router = APIRouter()
 def get_users(db: Session = Depends(get_db)):
     users = db.query(User).all()
     return success_response(
-        data=[{"id": user.id, "username": user.username, "telegram_id": user.telegram_id} for user in users],
+        data=[
+            {
+                "id": user.id,
+                "username": user.username,
+                "full_name": user.full_name,
+                "telegram_id": user.telegram_id,
+                "avatar_url": user.avatar_url
+            }
+            for user in users
+        ],
         message="Список пользователей"
     )
+
 
 @router.delete("/{username}")
 def delete_user(username: str, db: Session = Depends(get_db)):

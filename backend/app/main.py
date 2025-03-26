@@ -6,8 +6,8 @@ from loguru import logger
 from sqlalchemy.exc import IntegrityError
 
 from app.database import get_db
-from app.routes import tasks 
-from app.routes.users.router import router as users_router  
+from app.routes import tasks
+from app.routes.users.router import router as users_router
 
 from lib.utils.logger import setup_logging
 from app.exception_handlers import (
@@ -16,11 +16,12 @@ from app.exception_handlers import (
     integrity_error_handler
 )
 from app.responses import internal_error_response
+from app.scheduler import start_scheduler
 
 setup_logging(level="DEBUG")
 
 app = FastAPI(title="TaskFlow API")
-
+start_scheduler()
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -28,16 +29,17 @@ origins = [
     "http://127.0.0.1:3000"
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,      
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["*"],       
+    allow_headers=["*"],   
 )
 
 app.include_router(users_router, prefix="/users")
-app.include_router(tasks.router, prefix="/tasks") 
+app.include_router(tasks.router, prefix="/tasks")
 
 print("\n📌 [FastAPI] Зарегистрированные маршруты:")
 for route in app.routes:

@@ -6,3 +6,4 @@ export * from "./restore";
 export * from "./me";
 export * from "./logout";
 export * from "./userSettings";
+export * from "./getAllUsers";
